@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="vi"><head><meta charset="utf-8"><title>ChemVR Lab Futuristic – Phòng thí nghiệm Hóa học AR/VR</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>
+:root{--bg:#dcecf8;--pn:rgba(240,248,255,.92);--tx:#12304a;--mu:#5a7f9f;--ac:#2f9fe0;--ln:rgba(47,127,192,.3);--bd:#d4e8f8;box-sizing:border-box;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:#cfe6f7;color:var(--tx);font:13px/1.4 system-ui,"Segoe UI",Roboto,sans-serif;overflow:hidden}
+#hq{bottom:calc(env(safe-area-inset-bottom,0px) + 36vh);left:50%;transform:translateX(-50%);width:min(520px,calc(100% - 16px));z-index:6;border-color:#2f9fe0}#sty{top:calc(env(safe-area-inset-top,0px) + 56px);left:50%;transform:translateX(-50%);width:min(420px,calc(100vw - 540px));min-width:250px;z-index:5;border-color:#2f9fe0;max-height:30vh}.sw{display:inline-block;width:28px;height:18px;border-radius:7px;border:1px solid var(--ln);vertical-align:middle}#mol{width:316px!important}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.pn{position:fixed;background:var(--pn);backdrop-filter:blur(10px);border:1px solid var(--ln);border-radius:12px;padding:10px;overflow:auto;max-height:calc(100% - 90px)}
+#top{top:calc(env(safe-area-inset-top,0px) + 8px);left:8px;right:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;padding:6px 10px}
+#bank{top:calc(env(safe-area-inset-top,0px) + 58px);left:8px;width:250px}
+#st{top:calc(env(safe-area-inset-top,0px) + 58px);right:8px;width:262px}
+#lg{bottom:calc(env(safe-area-inset-bottom,0px) + 8px);left:50%;transform:translateX(-50%);width:min(560px,calc(100% - 16px));max-height:34vh}
+#mol{bottom:calc(env(safe-area-inset-bottom,0px) + 8px);right:8px;padding:6px;width:272px}
+button,select,input{font:inherit;color:var(--tx);background:var(--bd);border:1px solid var(--ln);border-radius:8px;padding:5px 9px}
+button{cursor:pointer}button:hover{border-color:var(--ac)}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac)}button.on{background:var(--ac);border-color:var(--ac);color:#fff}
+.r{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:6px 0}.mu{color:var(--mu);font-size:12px}.ch{margin:8px 0 2px;font-weight:600;color:var(--ac);font-size:12px}
+.it{display:flex;gap:7px;align-items:center;padding:4px 6px;border-radius:7px;cursor:pointer}.it:hover{background:var(--bd)}.dot{width:12px;height:12px;flex:none;border:1px solid var(--ln)}
+#q{width:100%;margin-bottom:6px}#hit{position:fixed;inset:0;pointer-events:none;opacity:0;transition:opacity .4s;background:radial-gradient(transparent 35%,rgba(220,30,30,.55))}
+#lg hr{border:0;border-top:1px solid var(--ln);margin:6px 0}
+@media(max-width:900px){#bank{width:190px}#st{width:215px}#mol{display:none}}
+
+.pn{background:linear-gradient(145deg,rgba(255,255,255,.8),rgba(214,236,252,.6));backdrop-filter:blur(14px) saturate(1.5);border:1px solid rgba(255,255,255,.8);border-radius:18px;box-shadow:0 8px 30px rgba(47,143,224,.28),inset 0 0 0 1px rgba(47,143,224,.14);animation:pop .6s ease}
+@keyframes pop{from{opacity:0}}
+button,select,input{border-radius:999px;border:1px solid rgba(47,143,224,.35)}
+button{background:linear-gradient(180deg,#fff,#e1f0fb);box-shadow:0 2px 6px rgba(47,143,224,.2);transition:transform .15s,box-shadow .15s}
+button:hover{transform:translateY(-2px);box-shadow:0 6px 14px rgba(47,143,224,.38)}
+button.on{background:linear-gradient(135deg,#4cc9f0,#7a8cff);color:#fff;border-color:transparent;box-shadow:0 0 14px rgba(47,143,224,.6)}
+#top>b{background:linear-gradient(90deg,#1f7fd0,#6a5cff);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:16px;letter-spacing:.3px}
+.it{transition:.15s}.it:hover{background:rgba(160,210,250,.6);transform:translateX(3px)}
+.ch{background:linear-gradient(90deg,rgba(47,143,224,.18),transparent);border-radius:8px;padding:2px 8px}
+#fx{position:fixed;inset:0;pointer-events:none;background:radial-gradient(60% 50% at 12% 0%,rgba(140,200,255,.35),transparent 70%),radial-gradient(55% 50% at 100% 100%,rgba(150,230,255,.3),transparent 70%);animation:aur 7s ease-in-out infinite alternate}
+@keyframes aur{to{opacity:.5;transform:scale(1.07)}}
+#toast{position:fixed;top:calc(env(safe-area-inset-top,0px) + 112px);left:50%;transform:translate(-50%,-18px);padding:8px 20px;border-radius:999px;background:linear-gradient(135deg,#4cc9f0,#7a8cff);color:#fff;font-weight:600;opacity:0;pointer-events:none;transition:.35s;z-index:9;box-shadow:0 8px 24px rgba(47,127,192,.5);white-space:nowrap}
+#toast.s{opacity:1;transform:translate(-50%,0)}
+#tip{position:fixed;pointer-events:none;padding:3px 11px;border-radius:10px;background:rgba(18,48,74,.92);color:#fff;font-size:12px;z-index:9;display:none}
+</style></head><body>
+<canvas id="c"></canvas><div id="fx"></div><div id="hit"></div><div id="toast"></div><div id="tip"></div>
+<div class="pn" id="top"><b>💠 ChemVR Lab</b><select id="dm"><option value="">🎬 51 thí nghiệm mẫu…</option></select><button id="vk">📦 Kho hóa chất</button><button id="hc">💀 Hardcore: TẮT</button><button id="sb" class="on">📖 Cốt truyện</button><button data-v="0">Bàn thí nghiệm</button><button data-v="1">Kệ hóa chất</button><button data-v="2">Khu an toàn</button><button data-v="3">Tủ hút</button><button data-v="4">Bồn rửa tay</button><button id="vm" class="on">🧬 Mô hình phân tử</button><button id="vr" hidden>🥽 Vào VR</button><label class="mu" title="Độ sáng">☀ <input id="br" type="range" min=".6" max="2.6" step=".05" value="1.1" style="width:90px;padding:0;vertical-align:middle"></label><button id="rs">↺ Làm lại</button></div>
+<div class="pn" id="bank"><input id="q" placeholder="Tìm trong 39 hóa chất…"><div id="lst"></div></div>
+<div class="pn" id="st"><b>Cốc 250 mL</b><div id="ms"></div><div id="ct"></div><div id="pg" class="mu"></div><div id="cc"></div>
+<div class="r"><span class="mu">Lượng mỗi lần:</span><button data-k="0">Ít</button><button data-k="1" class="on">Vừa</button><button data-k="2">Nhiều</button></div><div class="mu">Ít 5 mL / 0,2 g · Vừa 10 mL / 1 g · Nhiều 25 mL / 5 g</div>
+<div class="r"><button id="bh">🔥 Đun</button><button id="bi">🧊 Làm lạnh</button><button id="bw">🗑 Đổ bỏ</button><button id="bt">🥄 Khuấy (F)</button><button id="bc">🚪 Tủ dụng cụ (E)</button></div>
+<b>Tình huống &amp; an toàn</b><div class="r"><button id="bs">💦 Làm đổ/văng</button><button id="bg" class="on">🥽 Kính: BẬT</button><button id="bf" class="on">🌀 Tủ hút: BẬT</button></div>
+<div class="r"><button id="be">🧯 Chữa cháy</button><button id="by">🚿 Rửa mắt</button><button id="bk">🧹 Dọn tràn</button></div>
+<div>Điểm an toàn: <b id="sf">100</b>/100</div></div>
+<div class="pn" id="hq" hidden><div id="hqt"></div><div class="r"><input id="hqi" placeholder="Công thức chất tạo thành…" style="flex:1;min-width:120px" autocomplete="off"><button id="hqg">Gửi</button><button id="hqh">💡 −5đ</button><button id="hqs">Bỏ qua −❤</button></div></div><div class="pn" id="sty"></div><div class="pn" id="lg"></div>
+<div class="pn" id="mol"><canvas id="mc" width="300" height="178"></canvas><div class="mu">Mô hình phân tử (bi–que, CPK): minh họa giản lược, không phải ảnh thật.</div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+let eN=0;const errMsg=e=>{if(!eN++)document.querySelector('#lg').insertAdjacentHTML('afterbegin','<div style="color:#e5484d">⚠ Lỗi: '+((e&&e.message)||e)+'</div>')};addEventListener('error',e=>errMsg(e.error||e.message));
+const $=s=>document.querySelector(s),rnd=Math.random,cl=(v,a,b)=>Math.max(a,Math.min(b,v)),PI=Math.PI,RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+// ===== DỮ LIỆU: id|tên|công thức|trạng thái|màu|nhóm|M (mol/L) hoặc khối lượng mol|t°nc|t°s|nguy hiểm|k=có màu =====
+const CH=`HCl|Axit clohiđric 1M|HCl|l|#d4ecf4|Axit|1|||Ăn mòn, hơi kích ứng|
+H2SO4|Axit sunfuric đặc 18M|H₂SO₄|l|#e6e6c4|Axit|18|10|337|Ăn mòn mạnh; pha loãng tỏa nhiệt|
+H2SO4d|Axit sunfuric loãng 1M|H₂SO₄ 1M|l|#d4ecf4|Axit|1|||Ăn mòn nhẹ|
+HNO3|Axit nitric đặc 14M|HNO₃|l|#eee3b0|Axit|14|-42|83|Ăn mòn, oxi hóa, khí NO₂ độc|
+AcOH|Axit axetic 1M|CH₃COOH|l|#d4ecf4|Axit|1|17|118|Kích ứng|
+NaOH|Natri hiđroxit 1M|NaOH|l|#d4ecf4|Bazơ|1|||Ăn mòn da, mắt|
+NH3|Amoniac 1M|NH₃|l|#d4ecf4|Bazơ|1|||Mùi khai, kích ứng|
+CaOH2|Nước vôi trong|Ca(OH)₂|l|#d4ecf4|Bazơ|.02|||Kích ứng nhẹ|
+NaHCO3|Baking soda|NaHCO₃|s|#f5f5f0|Muối|84|||Ít nguy hiểm|
+Na2CO3|Natri cacbonat 1M|Na₂CO₃|l|#d4ecf4|Muối|1|||Kích ứng mắt|
+NaCl|Muối ăn|NaCl|s|#fafafa|Muối|58.4|801|1413|Ít nguy hiểm|
+CuSO4|Đồng(II) sunfat 0,5M|CuSO₄|l|#2f7fd6|Muối|.5|||Độc thủy sinh|k
+AgNO3|Bạc nitrat 0,1M|AgNO₃|l|#d4ecf4|Muối|.1|||Oxi hóa, làm đen da|
+BaCl2|Bari clorua 0,5M|BaCl₂|l|#d4ecf4|Muối|.5|||Độc nếu nuốt|
+KI|Kali iođua 1M|KI|l|#d4ecf4|Muối|1|||Ít nguy hiểm|
+FeCl3|Sắt(III) clorua 0,5M|FeCl₃|l|#d9a21c|Muối|.5|||Ăn mòn nhẹ|k
+KMnO4|Kali pemanganat 0,1M|KMnO₄|l|#7a0fa3|Muối|.1|||Oxi hóa, nhuộm da|k
+PbNO32|Chì(II) nitrat 0,5M|Pb(NO₃)₂|l|#d4ecf4|Muối|.5|||Độc kim loại nặng|
+KSCN|Kali thioxianat 0,5M|KSCN|l|#d4ecf4|Muối|.5|||Hại nếu nuốt|
+CaCO3|Đá vôi|CaCO₃|s|#f2efe6|Muối|100|||Ít nguy hiểm|
+Na|Natri kim loại|Na|s|#c9ccd2|Kim loại|23|98|883|Cháy nổ khi gặp nước!|
+Mg|Magie (dải)|Mg|s|#bfc4cc|Kim loại|24.3|650|1090|Cháy sáng chói|
+Zn|Kẽm (hạt)|Zn|s|#9aa3ad|Kim loại|65.4|420|907|Ít nguy hiểm|
+Fe|Sắt (mạt)|Fe|s|#5a5f66|Kim loại|55.8|1538||Ít nguy hiểm|
+Cu|Đồng (phoi)|Cu|s|#b8693a|Kim loại|63.5|1085||Ít nguy hiểm|
+Al|Nhôm (lá)|Al|s|#c8ccd2|Kim loại|27|660|2470|Ít nguy hiểm|
+H2O|Nước cất|H₂O|l|#cfeaf6|Dung môi|55.5|0|100|An toàn|
+EtOH|Etanol|C₂H₅OH|l|#d8eef6|Dung môi|17.1||78|Dễ cháy|
+Acet|Axeton|C₃H₆O|l|#d8eef6|Dung môi|13.6||56|Rất dễ cháy|
+Hex|Hexan|C₆H₁₄|l|#e6f0f4|Dung môi|7.6||69|Rất dễ cháy|
+Suc|Đường saccarozơ|C₁₂H₂₂O₁₁|s|#fbf8ef|Hữu cơ|342|186||Ít nguy hiểm|
+Wax|Parafin|CₙH₂ₙ₊₂|s|#f1ead0|Hữu cơ|350|55||Cháy khi quá nhiệt|
+Ice|Nước đá|H₂O (rắn)|s|#e6f6ff|Đặc biệt|18|0||Lạnh|
+I2|Iot|I₂|s|#3a2a4a|Đặc biệt|254|114|184|Hơi độc; thăng hoa|
+MnO2|Mangan đioxit|MnO₂|s|#2b2b2b|Đặc biệt|87|||Xúc tác, kích ứng|
+H2O2|Hiđro peoxit 30%|H₂O₂|l|#d8eef6|Oxi hóa|9.8|||Oxi hóa mạnh, ăn mòn|
+PP|Phenolphtalein|C₂₀H₁₄O₄|l|#e8f4f8|Chỉ thị|0|||Dung dịch cồn|
+MO|Metyl da cam|MO|l|#f0a020|Chỉ thị|0|||Độc nhẹ|
+UI|Chỉ thị vạn năng|UI|l|#6cbf4c|Chỉ thị|0|||Dung dịch cồn|
+ZnSO4|Kẽm sunfat 0,5M|ZnSO₄|l|#d4ecf4|Muối|.5|||Hại thủy sinh|
+MgSO4|Magie sunfat 0,5M|MgSO₄|l|#d4ecf4|Muối|.5|||Ít nguy hiểm|
+AlCl3|Nhôm clorua 0,5M|AlCl₃|l|#d4ecf4|Muối|.5|||Kích ứng|
+FeSO4|Sắt(II) sunfat 0,5M|FeSO₄|l|#bfe0a8|Muối|.5|||Kích ứng|k
+NiSO4|Niken(II) sunfat 0,5M|NiSO₄|l|#5fc46a|Muối|.5|||Độc, dị ứng|k
+CoCl2|Coban(II) clorua 0,5M|CoCl₂|l|#f06aa8|Muối|.5|||Độc|k
+MnSO4|Mangan(II) sunfat 0,5M|MnSO₄|l|#d4ecf4|Muối|.5|||Hại|
+CaCl2|Canxi clorua 0,5M|CaCl₂|l|#d4ecf4|Muối|.5|||Kích ứng mắt|
+KBr|Kali bromua 1M|KBr|l|#d4ecf4|Muối|1|||Ít nguy hiểm|
+K2CrO4|Kali cromat 0,5M|K₂CrO₄|l|#f2d41c|Muối|.5|||Độc, gây ung thư|k
+K2Cr2O7|Kali đicromat 0,1M|K₂Cr₂O₇|l|#ee8a1c|Muối|.1|||Độc, oxi hóa|k
+Na2S|Natri sunfua 0,5M|Na₂S|l|#d4ecf4|Muối|.5|||Sinh H₂S độc khi gặp axit|
+Na3PO4|Natri photphat 0,5M|Na₃PO₄|l|#d4ecf4|Muối|.5|||Kích ứng|
+Na2SO4|Natri sunfat 0,5M|Na₂SO₄|l|#d4ecf4|Muối|.5|||Ít nguy hiểm|
+K4FeCN6|Kali feroxianua 0,1M|K₄[Fe(CN)₆]|l|#f1e6a0|Muối|.1|||Ít độc|k
+K3FeCN6|Kali feroxianua(III) 0,1M|K₃[Fe(CN)₆]|l|#e8b030|Muối|.1|||Ít độc|k
+KOH|Kali hiđroxit 1M|KOH|l|#d4ecf4|Bazơ|1|||Ăn mòn da, mắt|
+`.trim().split('\n').map(l=>{const f=l.split('|');return{id:f[0],n:f[1],f:f[2],s:f[3],c:f[4],cat:f[5],M:+f[6]||0,mp:f[7]?+f[7]:null,bp:f[8]?+f[8]:null,hz:f[9],k:f[10]=='k'}});
+const D={},A={},mo={},m0={},dsv={};CH.forEach(c=>{D[c.id]=c;A[c.id]=mo[c.id]=m0[c.id]=dsv[c.id]=0});
+// ===== PHẢN ỨNG: q=chất tiêu hao:hệ số · k=xúc tác · h=kJ/mol (>0 tỏa nhiệt) · p=kết tủa · c=màu dung dịch · g=khí · fo=bọt · f/x=ngưỡng cháy/nổ (mol) =====
+const RX=[
+{q:'HCl:1,NaOH:1',e:'HCl + NaOH → NaCl + H₂O',h:57,o:'Trung hòa: tỏa nhiệt, dung dịch vẫn trong suốt; chất chỉ thị đổi màu theo pH.'},
+{q:'H2SO4:1,NaOH:2',e:'H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O',h:110,o:'Trung hòa axit đặc: tỏa nhiệt mạnh.'},
+{q:'HNO3:1,NaOH:1',e:'HNO₃ + NaOH → NaNO₃ + H₂O',h:57,o:'Trung hòa: tỏa nhiệt.'},
+{q:'AcOH:1,NaHCO3:1',e:'CH₃COOH + NaHCO₃ → CH₃COONa + H₂O + CO₂↑',h:-20,g:'CO₂',gs:2,d:6,o:'Sủi bọt CO₂, hỗn hợp lạnh đi nhẹ.'},
+{q:'HCl:1,NaHCO3:1',e:'HCl + NaHCO₃ → NaCl + H₂O + CO₂↑',h:-12,g:'CO₂',gs:3,d:5,o:'Sủi bọt CO₂ mạnh, hơi lạnh.'},
+{q:'HCl:2,CaCO3:1',e:'2HCl + CaCO₃ → CaCl₂ + H₂O + CO₂↑',h:15,g:'CO₂',gs:2,d:8,o:'Đá vôi tan dần, sủi bọt CO₂.'},
+{q:'HCl:2,Zn:1',e:'2HCl + Zn → ZnCl₂ + H₂↑',h:153,g:'H₂',gs:2,h2:1,d:9,o:'Kẽm tan, bọt H₂ thoát ra, hơi nóng lên. H₂ dễ cháy nổ!'},
+{q:'HCl:2,Mg:1',e:'2HCl + Mg → MgCl₂ + H₂↑',h:467,g:'H₂',gs:3,h2:1,d:3,o:'Magie tan rất nhanh, sôi bọt H₂, nóng lên rõ rệt.'},
+{q:'HCl:2,Fe:1',e:'2HCl + Fe → FeCl₂ + H₂↑',h:88,g:'H₂',gs:1,h2:1,d:14,c:'#bfe0a8',ck:.55,o:'Sắt tan chậm, bọt nhỏ, dung dịch ngả lục nhạt (Fe²⁺).'},
+{q:'H2SO4d:1,Zn:1',e:'H₂SO₄ + Zn → ZnSO₄ + H₂↑',h:160,g:'H₂',gs:3,h2:1,d:6,o:'Kẽm tan, H₂ sủi mạnh, tỏa nhiệt.'},
+{q:'CuSO4:1,NaOH:2',e:'CuSO₄ + 2NaOH → Cu(OH)₂↓ + Na₂SO₄',h:30,p:['#4f9be8','Cu(OH)₂ xanh lam'],d:3,o:'Kết tủa xanh lam dạng keo, dung dịch nhạt màu dần.'},
+{q:'CuSO4:1,Fe:1',e:'CuSO₄ + Fe → FeSO₄ + Cu↓',h:150,p:['#b4532a','Cu đỏ gạch'],c:'#c4e0b0',ck:.7,d:10,o:'Xanh lam nhạt dần → lục nhạt; đồng đỏ bám trên sắt.'},
+{q:'AgNO3:1,NaCl:1',e:'AgNO₃ + NaCl → AgCl↓ + NaNO₃',h:65,p:['#f4f4ee','AgCl trắng đục'],d:2,o:'Kết tủa trắng đục như sữa (AgCl).'},
+{q:'AgNO3:1,HCl:1',e:'AgNO₃ + HCl → AgCl↓ + HNO₃',h:65,p:['#f4f4ee','AgCl trắng đục'],d:2,o:'Kết tủa trắng đục AgCl (nhận biết Cl⁻).'},
+{q:'BaCl2:1,H2SO4d:1',e:'BaCl₂ + H₂SO₄ → BaSO₄↓ + 2HCl',h:20,p:['#ffffff','BaSO₄ trắng'],d:2,o:'Kết tủa trắng BaSO₄ không tan trong axit (nhận biết SO₄²⁻).'},
+{q:'PbNO32:1,KI:2',e:'Pb(NO₃)₂ + 2KI → PbI₂↓ + 2KNO₃',h:10,p:['#f4c400','PbI₂ vàng tươi'],d:3,o:'Kết tủa vàng tươi ("mưa vàng"). Chì độc → bình chất thải kim loại nặng.'},
+{q:'FeCl3:1,NaOH:3',e:'FeCl₃ + 3NaOH → Fe(OH)₃↓ + 3NaCl',h:40,p:['#8d3a12','Fe(OH)₃ nâu đỏ'],d:3,o:'Kết tủa nâu đỏ Fe(OH)₃.'},
+{q:'FeCl3:1,KSCN:1',e:'Fe³⁺ + SCN⁻ → [Fe(SCN)]²⁺',h:0,c:'#b3101a',ck:.9,d:2,o:'Màu đỏ máu xuất hiện tức thì (nhận biết Fe³⁺).'},
+{q:'KMnO4:2,H2O2:5,H2SO4d:3',e:'2KMnO₄ + 5H₂O₂ + 3H₂SO₄ → 2MnSO₄ + 5O₂↑ + K₂SO₄ + 8H₂O',h:50,g:'O₂',gv:5,gs:2,d:7,o:'Màu tím nhạt dần rồi mất màu, sủi bọt O₂.'},
+{q:'H2O2:2',k:'MnO2',e:'2H₂O₂ → 2H₂O + O₂↑ (xúc tác MnO₂)',h:98,g:'O₂',gs:3,d:4,fo:.6,fc:'#f4f7fa',o:'O₂ sủi dữ dội, bọt trắng trào lên, nóng. MnO₂ là xúc tác, không bị tiêu hao.'},
+{q:'H2O2:2',k:'KI',e:'2H₂O₂ → 2H₂O + O₂↑ (xúc tác I⁻)',h:98,g:'O₂',gs:2,d:5,c:'#c98a1c',ck:.75,fo:.35,fc:'#d9b45a',o:'Sủi bọt O₂, dung dịch vàng nâu (I₂ tạo thành).'},
+{q:'Na:2,H2O:2',e:'2Na + 2H₂O → 2NaOH + H₂↑',h:184,g:'H₂',gs:3,h2:1,d:3,f:.003,x:.012,sp:.5,o:'Natri chạy trên mặt nước, sủi H₂ mạnh, tỏa nhiệt; có thể bốc cháy (lửa vàng) hoặc nổ.'},
+{q:'Cu:1,HNO3:4',e:'Cu + 4HNO₃ → Cu(NO₃)₂ + 2NO₂↑ + 2H₂O',h:120,g:'NO₂',gv:2,gs:2,gc:'#b5651d',c:'#27a39a',ck:.8,tx:1,d:7,o:'Dung dịch xanh lục, khói nâu đỏ NO₂ rất độc, cần tủ hút!'},
+{q:'Suc:1',k:'H2SO4',e:'C₁₂H₂₂O₁₁ → 12C + 11H₂O (H₂SO₄ đặc hút nước)',h:2000,c:'#120a05',ck:1,fo:1,fc:'#0d0d0d',tx:1,st:1,d:9,o:'Đường hóa vàng → nâu → đen, bọt than trào lên, rất nóng, mùi khét. (Nhiệt hiệu dụng theo thực nghiệm.)'},
+{q:'H2SO4d:1,NaOH:2',e:'H₂SO₄ + 2NaOH → Na₂SO₄ + 2H₂O',h:110,o:'Trung hòa axit loãng: tỏa nhiệt nhẹ, dung dịch trong suốt.'},
+{q:'Na2CO3:1,HCl:2',e:'Na₂CO₃ + 2HCl → 2NaCl + H₂O + CO₂↑',h:8,g:'CO₂',gs:3,d:5,o:'Sủi bọt CO₂ mạnh ngay khi gặp axit.'},
+{q:'Na2CO3:1,CaOH2:1',e:'Na₂CO₃ + Ca(OH)₂ → CaCO₃↓ + 2NaOH',h:12,p:['#f5f5f0','CaCO₃ trắng'],d:3,o:'Nước vôi trong hóa đục như sữa (CaCO₃↓).'},
+{q:'Na2CO3:1,CuSO4:1',e:'Na₂CO₃ + CuSO₄ → CuCO₃↓ + Na₂SO₄',h:15,p:['#4fb39a','CuCO₃ xanh lục'],d:3,o:'Kết tủa xanh lục nhạt, dung dịch mất dần màu xanh lam.'},
+{q:'AgNO3:1,KI:1',e:'AgNO₃ + KI → AgI↓ + KNO₃',h:110,p:['#e9e07a','AgI vàng nhạt'],d:2,o:'Kết tủa vàng nhạt AgI (nhận biết I⁻).'},
+{q:'AgNO3:2,NaOH:2',e:'2AgNO₃ + 2NaOH → Ag₂O↓ + 2NaNO₃ + H₂O',h:60,p:['#6b4a2a','Ag₂O nâu sẫm'],d:2,o:'Kết tủa nâu sẫm Ag₂O.'},
+{q:'CuSO4:1,Zn:1',e:'CuSO₄ + Zn → ZnSO₄ + Cu↓',h:218,p:['#b4532a','Cu đỏ gạch'],d:6,o:'Xanh lam nhạt dần đến mất màu; đồng đỏ bám trên kẽm.'},
+{q:'HCl:6,Al:2',e:'2Al + 6HCl → 2AlCl₃ + 3H₂↑',h:1050,g:'H₂',gv:3,gs:3,h2:1,d:7,o:'Nhôm tan, sủi bọt H₂ (chậm lúc đầu, mạnh dần), nóng lên.'},
+{q:'NaOH:2,Al:2',e:'2Al + 2NaOH + 6H₂O → 2Na[Al(OH)₄] + 3H₂↑',h:430,g:'H₂',gv:3,gs:2,h2:1,d:8,o:'Nhôm tan trong kiềm (lưỡng tính), sủi bọt H₂.'},
+{q:'H2SO4d:1,Mg:1',e:'H₂SO₄ + Mg → MgSO₄ + H₂↑',h:465,g:'H₂',gs:3,h2:1,d:3,o:'Magie tan rất nhanh, sôi bọt H₂, nóng lên rõ rệt.'},
+{q:'CaCO3:1,AcOH:2',e:'CaCO₃ + 2CH₃COOH → Ca(CH₃COO)₂ + H₂O + CO₂↑',h:5,g:'CO₂',gs:1,d:12,o:'Đá vôi tan chậm trong giấm, bọt CO₂ nhỏ đều.'},
+{q:'CuSO4:1,NH3:4',e:'Cu²⁺ + 4NH₃ → [Cu(NH₃)₄]²⁺',h:55,c:'#1d3fbf',ck:.9,d:3,o:'Dung dịch chuyển xanh lam đậm (phức đồng–amoniac).'},
+{q:'FeCl3:2,KI:2',e:'2FeCl₃ + 2KI → 2FeCl₂ + I₂ + 2KCl',h:20,c:'#9a5a12',ck:.8,d:4,o:'Dung dịch vàng nâu đậm do I₂ sinh ra.'},
+{q:'AgNO3:2,Zn:1',e:'Zn + 2AgNO₃ → Zn(NO₃)₂ + 2Ag↓',h:330,p:['#d8dde2','Ag xám bạc'],d:8,o:'Bạc kim loại xám bạc bám quanh kẽm ("cây bạc").'}
+].map(r=>({...r,Q:r.q.split(',').map(s=>{const[a,b]=s.split(':');return[a,+b]})}));
+const DM=[['⭐ Tiêu biểu'],['Trung hòa + chỉ thị vạn năng (đổi màu theo pH)',[['UI',1],['HCl',1],['NaOH',0],['NaOH',0],['NaOH',0]]],
+['Mưa vàng PbI₂ (kết tủa)',[['PbNO32',1],['KI',1]]],['Mg + HCl (sủi H₂, tỏa nhiệt)',[['HCl',2],['Mg',1]]],
+['Đường + H₂SO₄ đặc (than hóa, trào bọt)',[['Suc',1],['H2SO4',1]]],['Đồng + HNO₃ đặc (khí NO₂ độc)',[['HNO3',1],['Cu',1]]],
+['KMnO₄ + H₂O₂ (mất màu tím)',[['KMnO4',2],['H2SO4d',1],['H2O2',0]]],['H₂O₂ + MnO₂ (bọt xúc tác)',[['H2O2',1],['MnO2',0]]],
+['Na + nước, mức Ít (cháy, văng kiềm)',[['H2O',1],['Na',0]]],['Pha loãng axit SAI cách → văng axit',[['H2SO4',1],['H2O',2]]],
+['Đun etanol → cháy hơi dung môi',[['EtOH',2],['#h']]],['Nóng chảy parafin',[['Wax',2],['#h']]],
+['Nước đá tan → sôi → bay hơi',[['Ice',2],['H2O',1],['#h']]],['Thăng hoa iot (hơi tím)',[['I2',1],['#h']]],
+['🎨 Axit – bazơ & chỉ thị'],
+['Phenolphtalein + NaOH → hồng tím',[['PP',1],['NaOH',1]]],
+['Màu hồng phenolphtalein biến mất khi thêm HCl',[['NaOH',1],['PP',1],['HCl',1]]],
+['Metyl da cam: đỏ (axit) → vàng (bazơ)',[['MO',1],['HCl',1],['NaOH',2]]],
+['Chỉ thị vạn năng trong giấm (axit yếu)',[['UI',1],['AcOH',1]]],
+['Chỉ thị vạn năng trong amoniac (bazơ yếu)',[['UI',1],['NH3',1]]],
+['Chỉ thị vạn năng trong nước vôi trong',[['UI',1],['CaOH2',1]]],
+['Trung hòa H₂SO₄ loãng bằng NaOH (đỏ → lục)',[['UI',1],['H2SO4d',1],['NaOH',1],['NaOH',1]]],
+['⬇ Kết tủa'],
+['AgCl trắng đục: AgNO₃ + NaCl',[['AgNO3',2],['NaCl',0]]],
+['AgI vàng nhạt: AgNO₃ + KI',[['AgNO3',1],['KI',0]]],
+['Ag₂O nâu sẫm: AgNO₃ + NaOH',[['AgNO3',1],['NaOH',0]]],
+['BaSO₄ trắng: nhận biết sunfat',[['BaCl2',1],['H2SO4d',0]]],
+['Cu(OH)₂ xanh lam: CuSO₄ + NaOH',[['CuSO4',1],['NaOH',1]]],
+['Fe(OH)₃ nâu đỏ: FeCl₃ + NaOH',[['FeCl3',1],['NaOH',2]]],
+['Phức đồng–amoniac xanh lam đậm',[['CuSO4',1],['NH3',2]]],
+['Nước vôi trong hóa đục (CaCO₃)',[['CaOH2',2],['Na2CO3',0]]],
+['CuCO₃ xanh lục: CuSO₄ + Na₂CO₃',[['CuSO4',1],['Na2CO3',1]]],
+['💨 Sinh khí'],
+['Giấm + baking soda (CO₂)',[['AcOH',2],['NaHCO3',1]]],
+['Đá vôi + HCl (CO₂)',[['HCl',2],['CaCO3',1]]],
+['Đá vôi + giấm (CO₂ chậm)',[['AcOH',2],['CaCO3',1]]],
+['Na₂CO₃ + HCl (CO₂ mạnh)',[['Na2CO3',0],['HCl',1]]],
+['Kẽm + HCl (H₂)',[['HCl',2],['Zn',1]]],
+['Sắt + HCl (H₂ chậm, lục nhạt)',[['HCl',2],['Fe',1]]],
+['Magie + H₂SO₄ loãng (H₂ nhanh, nóng)',[['H2SO4d',2],['Mg',1]]],
+['Nhôm + HCl (H₂)',[['HCl',2],['Al',0]]],
+['Nhôm + NaOH (nhôm lưỡng tính, H₂)',[['NaOH',2],['Al',0]]],
+['⚡ Oxi hóa – khử & đổi màu'],
+['Fe³⁺ + SCN⁻ → đỏ máu',[['FeCl3',1],['KSCN',1]]],
+['Fe³⁺ + I⁻ → vàng nâu (I₂)',[['FeCl3',1],['KI',1]]],
+['Đinh sắt + CuSO₄ (xanh → lục nhạt)',[['CuSO4',2],['Fe',1]]],
+['Kẽm + CuSO₄ (mất màu xanh)',[['CuSO4',2],['Zn',1]]],
+['"Cây bạc": Zn + AgNO₃',[['AgNO3',2],['Zn',0]]],
+['H₂O₂ + KI (bọt vàng nâu)',[['H2O2',1],['KI',1]]],
+['🌡 Chuyển pha'],
+['Nước sôi và bay hơi',[['H2O',2],['#h']]],
+['Muối ăn hòa tan trong nước',[['H2O',2],['NaCl',2]]],
+['🔥 Cháy nổ & an toàn'],
+['Na + nước mức Vừa → NỔ (cảnh báo)',[['H2O',1],['Na',1]]],
+['Pha loãng axit ĐÚNG cách',[['H2O',2],['H2SO4',0]]],
+['H₂ gặp lửa → nổ',[['EtOH',1],['#h'],['#w'],['#w'],['#w'],['#w'],['#w'],['HCl',2],['Mg',1]]],
+['Axit văng vào mắt khi không đeo kính',[['HNO3',1],['#g'],['#s']]],
+['Cu + HNO₃ khi TẮT tủ hút',[['HNO3',1],['#f'],['Cu',1]]]];
+
+// ===== MỞ RỘNG: ~100 phản ứng mới (sinh theo bảng tan/không tan + dãy hoạt động) =====
+const SB='₀₁₂₃₄₅₆₇₈₉',SP={'0':'⁰','1':'¹','2':'²','3':'³','+':'⁺','-':'⁻'},sub=t=>t.replace(/\d/g,d=>SB[d]),sup=t=>t.replace(/[\d+-]/g,d=>SP[d]),gcd=(a,b)=>b?gcd(b,a%b):a,
+ fx=t=>t.replace(/\^(\d?[+-])/g,(m,c)=>sup(c)).replace(/([A-Za-z)\]])(\d+)/g,(m,a,d)=>a+sub(d)),ky=q=>q.split(',').sort().join(','),gp={ppt:[],met:[],sp:[]};
+function mkr(q,e,x,t){if(RX.some(r=>ky(r.q)==ky(q)))return;const r={q,e,...x};r.Q=q.split(',').map(z=>{const[a,b]=z.split(':');return[a,+b]});RX.push(r);gp[t].push([e.split(' → ')[0],r.Q.map(([i])=>[i,1])]);return r}
+const CT={Cu:['Cu',2,'CuSO4'],Fe3:['Fe',3,'FeCl3'],Fe2:['Fe',2,'FeSO4'],Ag:['Ag',1,'AgNO3'],Pb:['Pb',2,'PbNO32'],Ba:['Ba',2,'BaCl2'],Ca:['Ca',2,'CaCl2'],Zn:['Zn',2,'ZnSO4'],Mg:['Mg',2,'MgSO4'],Al:['Al',3,'AlCl3'],Ni:['Ni',2,'NiSO4'],Co:['Co',2,'CoCl2'],Mn:['Mn',2,'MnSO4']};
+const AN={OH:['OH',1,'NaOH',1],KOH:['OH',1,'KOH',1],CO3:['CO3',2,'Na2CO3',1],S:['S',2,'Na2S',0],PO4:['PO4',3,'Na3PO4',1],CrO4:['CrO4',2,'K2CrO4',1],Br:['Br',1,'KBr',0],Cl:['Cl',1,'NaCl',0],SO4:['SO4',2,'Na2SO4',1]};
+`Fe2.OH|#a9c9a4|trắng xanh
+Pb.OH|#f2f2ee|trắng
+Zn.OH|#f4f4f0|trắng
+Mg.OH|#f6f6f2|trắng
+Al.OH|#f2f4f6|trắng keo
+Ni.OH|#7ed17a|lục táo
+Co.OH|#d97aa0|hồng
+Mn.OH|#e6d6c8|trắng hơi hồng
+Cu.KOH|#4f9be8|xanh lam
+Fe3.KOH|#8d3a12|nâu đỏ
+Ni.KOH|#7ed17a|lục táo
+Co.KOH|#d97aa0|hồng
+Zn.KOH|#f4f4f0|trắng
+Al.KOH|#f2f4f6|trắng keo
+Ba.CO3|#f6f6f2|trắng
+Ca.CO3|#f5f5f0|trắng
+Ag.CO3|#e6e08a|vàng nhạt
+Pb.CO3|#f2f2ee|trắng
+Zn.CO3|#f2f4f2|trắng
+Mg.CO3|#f4f4f0|trắng
+Fe2.CO3|#cfd2c4|trắng xám
+Ni.CO3|#9fd9a0|lục nhạt
+Co.CO3|#e0668f|hồng đỏ
+Mn.CO3|#efd8d8|trắng hồng
+Cu.S|#161616|đen
+Pb.S|#1c1c1c|đen
+Ag.S|#222222|đen
+Zn.S|#f2f4f2|trắng
+Fe2.S|#1f1f1f|đen
+Ni.S|#1e1e1e|đen
+Co.S|#1a1a1a|đen
+Mn.S|#f0b8a0|hồng cam
+Ca.PO4|#f6f6f2|trắng
+Ba.PO4|#f4f4f0|trắng
+Mg.PO4|#f4f4f0|trắng
+Ag.PO4|#f0d848|vàng
+Zn.PO4|#f2f4f2|trắng
+Fe3.PO4|#efe6b8|vàng nhạt
+Cu.PO4|#6fb7e0|xanh lam nhạt
+Ni.PO4|#8fd6a0|lục nhạt
+Co.PO4|#a07ad0|tím
+Mn.PO4|#efd8e0|trắng hồng
+Al.PO4|#f2f4f6|trắng
+Pb.PO4|#f2f2ee|trắng
+Fe2.PO4|#d8e8e0|trắng xanh
+Ba.CrO4|#e6d23a|vàng
+Pb.CrO4|#f0b81c|vàng cam
+Ag.CrO4|#b5301f|đỏ gạch
+Cu.CrO4|#8a4a2a|nâu đỏ
+Ag.Br|#ece8a8|vàng kem
+Pb.Br|#f4f4f0|trắng
+Pb.Cl|#f4f4f0|trắng
+Ba.SO4|#ffffff|trắng
+Pb.SO4|#f4f4f0|trắng
+Ca.SO4|#f6f6f2|trắng`.split('\n').forEach(l=>{const[k,c,w]=l.split('|'),[ca,an]=k.split('.'),[sy,a,cs]=CT[ca],[ax,b,a2,po]=AN[an],g=gcd(a,b),x=b/g,y=a/g,fz=sub(sy+(x>1?x:'')+(po&&y>1?`(${ax})${y}`:ax+(y>1?y:'')));
+ mkr(`${cs}:${x},${a2}:${y}`,`${x>1?x:''}${sy}${sup(a>1?a+'+':'+')} + ${y>1?y:''}${sub(ax)}${sup(b>1?b+'-':'-')} → ${fz}↓`,{h:20,p:[c,fz+' '+w],d:3,o:`Kết tủa màu ${w}: ${fz}↓ hình thành, dung dịch đục dần.`},'ppt')});
+const MT={Mg:[2,'#d6eef8',3],Al:[3,'#d6eef8',8],Zn:[2,'#d6eef8',6],Fe:[2,'#bfe0a8',10],Cu:[2,'#2f7fd6',10]},ACT='Mg Al Zn Fe2 Ni Pb Cu Ag'.split(' '),EP={Mg:-2.37,Al:-1.66,Zn:-.76,Fe:-.44,Fe2:-.44,Ni:-.25,Pb:-.13,Cu:.34,Ag:.8},
+ DP={Cu:['#b4532a','đồng đỏ gạch'],Ag:['#d8dde2','bạc xám'],Pb:['#8a8f99','chì xám'],Ni:['#9aa8a0','niken xám'],Fe:['#5a5f66','sắt xám đen'],Zn:['#9aa3ad','kẽm xám']};
+for(const m in MT)for(const k of ['Cu','Ag','Pb','Ni','Fe2','Zn']){if(ACT.indexOf(m=='Fe'?'Fe2':m)>=ACT.indexOf(k))continue;const[sy,ck,cs]=CT[k],vm=MT[m][0],g=gcd(vm,ck),nm=ck/g,nk=vm/g,dp=DP[sy];
+ mkr(`${m}:${nm},${cs}:${nk}`,`${nm>1?nm:''}${m} + ${nk>1?nk:''}${sy}${sup(ck>1?ck+'+':'+')} → ${nm>1?nm:''}${m}${sup(vm+'+')} + ${nk>1?nk:''}${sy}↓`,{h:Math.round((EP[k]-EP[m])*vm*nm*55),p:[dp[0],dp[1]+' bám'],c:MT[m][1],ck:.8,d:MT[m][2],o:`${m} đẩy ${sy} ra khỏi muối: xuất hiện ${dp[1]}, màu dung dịch biến đổi.`},'met')}
+[['CuSO4:2,KI:4','2Cu^2+ + 4I^- → 2CuI↓ + I2',{h:40,p:['#e4dccb','CuI trắng ngà'],c:'#9a5a12',ck:.8,d:3,o:'Dung dịch nâu đỏ (I₂ sinh ra) lẫn kết tủa trắng ngà CuI.'}],
+['K2CrO4:2,H2SO4d:1','2CrO4^2- + 2H^+ → Cr2O7^2- + H2O',{h:10,c:'#ee7a12',ck:.95,d:3,o:'Vàng (CrO₄²⁻) chuyển sang cam (Cr₂O₇²⁻) khi thêm axit.'}],
+['K2Cr2O7:1,NaOH:2','Cr2O7^2- + 2OH^- → 2CrO4^2- + H2O',{h:30,c:'#f2d41c',ck:.95,d:3,o:'Cam chuyển sang vàng khi thêm kiềm (cân bằng cromat–đicromat).'}],
+['K2Cr2O7:1,FeSO4:6,H2SO4d:7','Cr2O7^2- + 6Fe^2+ + 14H^+ → 2Cr^3+ + 6Fe^3+ + 7H2O',{h:100,c:'#2e9e5b',ck:.9,d:7,o:'Cam chuyển dần sang lục (Cr³⁺): Fe²⁺ bị oxi hóa.'}],
+['KMnO4:1,FeSO4:5,H2SO4d:4','MnO4^- + 5Fe^2+ + 8H^+ → Mn^2+ + 5Fe^3+ + 4H2O',{h:90,c:'#e8cf8a',ck:.5,d:6,o:'Tím nhạt dần rồi mất màu, dung dịch ngả vàng nhạt (Fe³⁺).'}],
+['FeSO4:2,H2O2:1,H2SO4d:1','2Fe^2+ + H2O2 + 2H^+ → 2Fe^3+ + 2H2O',{h:100,c:'#e0b03a',ck:.7,d:5,o:'Lục nhạt chuyển sang vàng nâu (Fe²⁺ → Fe³⁺).'}],
+['FeCl3:4,K4FeCN6:3','4Fe^3+ + 3[Fe(CN)6]^4- → Fe4[Fe(CN)6]3↓',{h:30,p:['#1b3a8a','xanh Phổ'],d:3,o:'Kết tủa xanh đậm "xanh Phổ" xuất hiện tức thì.'}],
+['FeSO4:3,K3FeCN6:2','3Fe^2+ + 2[Fe(CN)6]^3- → Fe3[Fe(CN)6]2↓',{h:30,p:['#16337a','xanh Turnbull'],d:3,o:'Kết tủa xanh đậm Turnbull (nhận biết Fe²⁺).'}],
+['CuSO4:2,K4FeCN6:1','2Cu^2+ + [Fe(CN)6]^4- → Cu2[Fe(CN)6]↓',{h:30,p:['#8a3a1a','nâu đỏ'],d:3,o:'Kết tủa nâu đỏ Cu₂[Fe(CN)₆] (nhận biết Cu²⁺).'}],
+['AgNO3:4,K4FeCN6:1','4Ag^+ + [Fe(CN)6]^4- → Ag4[Fe(CN)6]↓',{h:30,p:['#f4f4ee','trắng'],d:3,o:'Kết tủa trắng Ag₄[Fe(CN)₆].'}],
+['Na2S:1,HCl:2','S^2- + 2H^+ → H2S↑',{h:15,g:'H2S',gs:2,tx:1,gc:'#d8e090',d:4,o:'Sủi khí H₂S mùi trứng thối, RẤT ĐỘC → bật tủ hút!'}],
+['Na2S:1,H2SO4d:1','S^2- + 2H^+ → H2S↑',{h:15,g:'H2S',gs:2,tx:1,gc:'#d8e090',d:4,o:'Sủi khí H₂S mùi trứng thối, RẤT ĐỘC → bật tủ hút!'}],
+['FeCl3:1,NaHCO3:3','Fe^3+ + 3HCO3^- → Fe(OH)3↓ + 3CO2↑',{h:10,p:['#8d3a12','Fe(OH)₃ nâu đỏ'],g:'CO2',gs:2,d:4,o:'Kết tủa nâu đỏ kèm sủi bọt CO₂ (thủy phân hai chiều).'}],
+['AlCl3:1,NaHCO3:3','Al^3+ + 3HCO3^- → Al(OH)3↓ + 3CO2↑',{h:10,p:['#f2f4f6','Al(OH)₃ trắng keo'],g:'CO2',gs:2,d:4,o:'Kết tủa trắng keo kèm sủi bọt CO₂.'}],
+['NiSO4:1,NH3:6','Ni^2+ + 6NH3 → [Ni(NH3)6]^2+',{h:50,c:'#4a3fc4',ck:.9,d:3,o:'Lục chuyển xanh tím đậm (phức Ni–amoniac).'}],
+['FeCl3:1,NH3:3','Fe^3+ + 3NH3 + 3H2O → Fe(OH)3↓ + 3NH4^+',{h:40,p:['#8d3a12','Fe(OH)₃ nâu đỏ'],d:3,o:'Kết tủa nâu đỏ Fe(OH)₃.'}],
+['Zn:1,FeCl3:2','Zn + 2Fe^3+ → Zn^2+ + 2Fe^2+',{h:150,c:'#cfe8b8',ck:.7,d:6,o:'Vàng nâu (Fe³⁺) chuyển lục nhạt (Fe²⁺): đổi màu do bị khử.'}],
+['Fe:1,FeCl3:2','Fe + 2Fe^3+ → 3Fe^2+',{h:60,c:'#cfe8b8',ck:.7,d:8,o:'Vàng nâu chuyển lục nhạt (Fe³⁺ → Fe²⁺).'}],
+['Cu:1,FeCl3:2','Cu + 2Fe^3+ → Cu^2+ + 2Fe^2+',{h:40,c:'#4fa890',ck:.8,d:10,o:'Vàng nâu chuyển lục xanh (Cu²⁺ + Fe²⁺), đồng tan dần.'}],
+['Fe:1,H2SO4d:1','Fe + 2H^+ → Fe^2+ + H2↑',{h:88,g:'H2',gs:1,h2:1,c:'#bfe0a8',ck:.55,d:12,o:'Sắt tan chậm, bọt H₂ nhỏ, dung dịch lục nhạt.'}],
+['Mg:1,AcOH:2','Mg + 2CH3COOH → Mg^2+ + 2CH3COO^- + H2↑',{h:300,g:'H2',gs:2,h2:1,d:6,o:'Magie tan, sủi bọt H₂ đều trong giấm.'}],
+['Zn:1,AcOH:2','Zn + 2CH3COOH → Zn^2+ + 2CH3COO^- + H2↑',{h:150,g:'H2',gs:1,h2:1,d:14,o:'Kẽm tan chậm, bọt H₂ nhỏ.'}],
+['Zn:1,NaOH:2','Zn + 2NaOH + 2H2O → Na2[Zn(OH)4] + H2↑',{h:150,g:'H2',gs:1,h2:1,d:12,o:'Kẽm lưỡng tính tan trong kiềm, sủi bọt H₂.'}],
+['NaHCO3:2,H2SO4d:1','2NaHCO3 + H2SO4 → Na2SO4 + 2H2O + 2CO2↑',{h:-20,g:'CO2',gs:3,d:5,o:'Sủi bọt CO₂ mạnh, hơi lạnh.'}],
+['HCl:1,KOH:1','HCl + KOH → KCl + H2O',{h:57,o:'Trung hòa: tỏa nhiệt, dung dịch trong suốt (chỉ thị đổi màu theo pH).'}],
+['H2SO4d:1,KOH:2','H2SO4 + 2KOH → K2SO4 + 2H2O',{h:110,o:'Trung hòa: tỏa nhiệt, dung dịch trong suốt.'}]].forEach(([q,e,x])=>mkr(q,fx(e),x,'sp'));
+[['🧪 Mở rộng · Kết tủa','ppt'],['🧪 Mở rộng · Kim loại đẩy kim loại','met'],['🌈 Mở rộng · Đổi màu, oxi hóa khử, khí','sp']].forEach(([t,k])=>{DM.push([t]);gp[k].forEach(a=>DM.push(a))});
+const CC={Axit:'#d9342b',Bazơ:'#2b6fd9',Muối:'#6b7a8f','Kim loại':'#3f4650','Dung môi':'#e39b1a','Hữu cơ':'#7a5a2f','Đặc biệt':'#7b4fb0','Oxi hóa':'#d94f9b','Chỉ thị':'#2aa876'};
+const IR={PP:'không màu (pH<8,2) → hồng → đỏ tím (pH>10)',MO:'đỏ (pH<3,1) → cam → vàng (pH>4,4)',UI:'đỏ (pH≈1) → cam → vàng → lục (pH 7) → lam → tím (pH≈13)'};
+const SOL={NaCl:.36,NaHCO3:.096,Suc:2},AC={HCl:1,H2SO4:2,H2SO4d:2,HNO3:1,AcOH:1},BA={NaOH:1,KOH:1,NH3:1,CaOH2:2,Na2CO3:2};
+const IN={PP:[[8.2,'#f4f8fa'],[9.2,'#f4a7c9'],[10.5,'#d81b8a']],MO:[[3.1,'#e5322d'],[4.4,'#f3c316']],UI:[[1,'#e53935'],[3,'#fb8c00'],[5,'#fdd835'],[7,'#43a047'],[9,'#1e88e5'],[11,'#3949ab'],[13,'#7b1fa2']]};
+// ===== TRẠNG THÁI =====
+let lvl=1,T=25,V=0,heat=0,ice=0,fan=1,gog=1,safe=100,fire=0,shake=0,fh=0,hitT=0,sed=0,turb=0,mlt=0,foamT=0,fo=0,tkv=0,tkM=0,ph=null,vap=0,tq=0,pq=0,gacc=0,clk=0,lastTxt='',eqTxt='Sẵn sàng',obsTxt='Thêm hóa chất để bắt đầu.',mdl=null,L=[],act=[],tmr=[];
+const tint=new THREE.Color(),ptc=new THREE.Color(),foamC=new THREE.Color(),mc=new THREE.Color(),W=new THREE.Color(1,1,1),O1=new THREE.Color('#ff7a1a'),O2=new THREE.Color('#ffc233'),GR=new THREE.Color('#3a3a3a'),PU=new THREE.Color('#8a2be2');
+// ===== KHUNG 3D =====
+const cv=$('#c'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=false;R.outputEncoding=THREE.sRGBEncoding;R.toneMapping=THREE.LinearToneMapping;R.toneMappingExposure=1.0;R.xr.enabled=true;
+const S=new THREE.Scene(),C=new THREE.PerspectiveCamera(55,1,.05,60),rig=new THREE.Group(),pk=[],rc=new THREE.Raycaster();
+S.background=new THREE.Color('#cfe6f7');rig.add(C);S.add(rig);
+const rsz=()=>{R.setSize(innerWidth,innerHeight,false);C.aspect=innerWidth/innerHeight;C.updateProjectionMatrix()};addEventListener('resize',rsz);rsz();
+const tex=(f,w=256,h=256)=>{const c=document.createElement('canvas');c.width=w;c.height=h;f(c.getContext('2d'),w,h);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t};
+const M=(c,r=.6,m=0)=>m>.5?new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m}):new THREE.MeshLambertMaterial({color:c});
+const glassM=new THREE.MeshPhysicalMaterial({color:0xffffff,transparent:true,opacity:.2,roughness:.02,clearcoat:1,side:THREE.DoubleSide,depthWrite:false});
+const put=(o,x,y,z)=>{o.position.set(x,y,z);o.castShadow=o.receiveShadow=true;S.add(o);return o};
+const bx=(w,h,d,m,x,y,z)=>put(new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m),x,y,z);
+const cy=(a,b,h,m,x,y,z,s=24)=>put(new THREE.Mesh(new THREE.CylinderGeometry(a,b,h,s),m),x,y,z);
+const reg=(o,u)=>{Object.assign(o.userData,u);pk.push(o);return o};
+const sign=(t,w,h,bg,fg,x,y,z,ry=0)=>{const p=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:tex((g,Wd,H)=>{g.fillStyle=bg;g.fillRect(0,0,Wd,H);g.fillStyle=fg;g.font=`bold ${Math.min(H*.46,Wd/(t.length*.62))}px sans-serif`;g.textAlign='center';g.textBaseline='middle';g.fillText(t,Wd/2,H/2)},512,Math.max(32,Math.round(512*h/w)))}));p.position.set(x,y,z);p.rotation.y=ry;S.add(p);return p};
+// ----- Phòng -----
+const ML=c=>new THREE.MeshLambertMaterial({color:c,emissive:c,emissiveIntensity:.22}),wall=ML(0xdcecf8),steel=ML(0xb9cfe0),topM=ML(0x3f6283),cab=ML(0xc4dcef),dark=ML(0x4b6a86);
+const rm=new THREE.Mesh(new THREE.BoxGeometry(9,3.2,6.5),new THREE.MeshLambertMaterial({color:0xe3f0fa,emissive:0xffffff,emissiveIntensity:.14,side:THREE.BackSide}));rm.position.set(0,1.6,.25);rm.receiveShadow=true;S.add(rm);
+const ft=tex((g,w,h)=>{g.fillStyle='#dfeaf3';g.fillRect(0,0,w,h);g.strokeStyle='#b9cfe0';g.lineWidth=5;g.strokeRect(0,0,w,h);for(let i=0;i<500;i++){g.fillStyle=`rgba(0,0,0,${rnd()*.05})`;g.fillRect(rnd()*w,rnd()*h,3,3)}});ft.wrapS=ft.wrapT=THREE.RepeatWrapping;ft.repeat.set(9,6.5);
+const flr=new THREE.Mesh(new THREE.PlaneGeometry(9,6.5),new THREE.MeshLambertMaterial({map:ft,emissive:0xffffff,emissiveMap:ft,emissiveIntensity:.25}));flr.rotation.x=-PI/2;flr.position.set(0,.003,.25);flr.receiveShadow=true;S.add(flr);
+for(let i=-1;i<=1;i++)for(let j=0;j<2;j++)bx(1.2,.04,.5,new THREE.MeshBasicMaterial({color:0xffffff}),i*2.4,3.16,-1+j*2.2).castShadow=false;
+S.add(new THREE.AmbientLight(0xffffff,.2),new THREE.HemisphereLight(0xffffff,0xcfe0ee,.3));
+const sun=new THREE.DirectionalLight(0xf2f8ff,.5);sun.position.set(6,4.5,-1);sun.castShadow=false;sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-6,right:6,top:6,bottom:-6,near:1,far:20});sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0006;S.add(sun);
+[[0,2.9,-.4],[0,2.9,1.4]].forEach(p=>{const l=new THREE.PointLight(0xffffff,.18,12);l.position.set(...p);S.add(l)});
+const FL=new THREE.PointLight(0xff8a30,0,3.5);FL.position.set(0,1.3,-.2);S.add(FL);
+const wt=tex((g,w,h)=>{const q=g.createLinearGradient(0,0,0,h);q.addColorStop(0,'#8fc6f0');q.addColorStop(1,'#eaf6ff');g.fillStyle=q;g.fillRect(0,0,w,h)});
+const wd=new THREE.Mesh(new THREE.PlaneGeometry(2.6,1.3),new THREE.MeshBasicMaterial({map:wt}));wd.position.set(4.44,1.9,-.6);wd.rotation.y=-PI/2;S.add(wd);bx(.05,1.42,2.72,steel,4.48,1.9,-.6);
+const wd2=new THREE.Mesh(new THREE.PlaneGeometry(1.3,1.3),new THREE.MeshBasicMaterial({map:wt}));wd2.position.set(-4.44,1.9,.95);wd2.rotation.y=PI/2;S.add(wd2);bx(.05,1.42,1.42,steel,-4.48,1.9,.95);
+
+sign('PHÒNG THÍ NGHIỆM HÓA HỌC · KÍNH BẢO HỘ · ÁO BLOUSE · GĂNG TAY',4.2,.28,'#2f7fc0','#e8f3ff',0,2.82,-2.97);
+bx(1,2.1,.05,M(0x8a97a8),-2,1.05,3.45);sign('LỐI RA · ĐÈN KHẨN CẤP',1,.16,'#1f9d55','#fff',-2,2.2,3.47,PI);
+// ----- Bàn, kệ -----
+bx(3.4,.86,1,cab,0,.43,-.2);bx(3.5,.05,1.1,topM,0,.885,-.2);for(let i=-4;i<=4;i++)bx(.012,.7,.01,dark,i*.4,.45,.305);
+bx(7,.86,.7,cab,0,.43,-2.55);bx(7.1,.05,.8,topM,0,.885,-2.55);for(let i=-8;i<=8;i++)bx(.012,.7,.01,dark,i*.4,.45,-2.195);
+bx(.8,.02,.45,M(0x8d97a3,.3,.9),2.4,.915,-2.5);cy(.015,.015,.35,steel,2.4,1.08,-2.75);bx(.02,.02,.22,steel,2.4,1.25,-2.64);
+[1.25,1.7,2.15].forEach(y=>bx(6.8,.03,.34,steel,0,y,-2.72));[-3.4,0,3.4].forEach(x=>bx(.03,1,.34,steel,x,1.7,-2.72));
+function label(c){return tex((g,w,h)=>{g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle=CC[c.cat];g.fillRect(0,0,w,26);g.fillStyle='#fff';g.font='bold 18px sans-serif';g.textAlign='center';g.fillText(c.cat,w/2,19);g.fillStyle='#111';g.font='bold 34px sans-serif';g.fillText(c.f,w/2,72,120);g.font='15px sans-serif';g.fillText(c.n.slice(0,22),w/2,100,120);g.font='12px sans-serif';g.fillStyle='#b00';g.fillText('⚠ '+c.hz.slice(0,24),w/2,121,122)},128,128)}
+function bottle(c,x,y,z){const g=new THREE.Group(),isL=c.s=='l';
+ const gl=new THREE.Mesh(new THREE.CylinderGeometry(.05,.052,.18,20),glassM);gl.position.y=.09;
+ const fl=new THREE.Mesh(new THREE.CylinderGeometry(.043,.046,isL?.12:.07,20),new THREE.MeshStandardMaterial({color:c.c,roughness:isL?.1:.9,transparent:isL,opacity:isL?.85:1}));fl.position.y=isL?.07:.045;
+ const nk=new THREE.Mesh(new THREE.CylinderGeometry(.022,.03,.04,16),glassM);nk.position.y=.2;
+ const cp=new THREE.Mesh(new THREE.CylinderGeometry(.026,.026,.03,16),M(CC[c.cat],.5));cp.position.y=.235;
+ const lb=new THREE.Mesh(new THREE.PlaneGeometry(.085,.085),new THREE.MeshBasicMaterial({map:label(c)}));lb.position.set(0,.09,.0535);
+ g.add(gl,fl,nk,cp,lb);g.position.set(x,y,z);S.add(g);g.traverse(o=>{if(o.isMesh){o.userData.id=c.id;pk.push(o)}})}
+const grp={};CH.forEach((c,i)=>{const lv=i/20|0,x=-3.2+(i%20)*.34,y=1.265+lv*.45;bottle(c,x,y,-2.72);const k=c.cat+lv;(grp[k]=grp[k]||{t:c.cat,a:[],y}).a.push(x)});
+Object.values(grp).forEach(g=>{const x0=Math.min(...g.a),x1=Math.max(...g.a);sign(g.t,x1-x0+.4,.09,CC[g.t],'#fff',(x0+x1)/2,g.y+.34,-2.54)});
+// ----- Bếp, cốc, dụng cụ -----
+const bY=.985,bH=.26,bR=.11,bz0=-.2;
+const hp=reg(bx(.4,.07,.4,M(0x07090d,.4,.6),0,.945,-.2),{act:'heat'});bx(.64,.004,.64,M(0x0a0d13),0,.912,-.2);
+const hr=reg(cy(.15,.15,.012,new THREE.MeshStandardMaterial({color:0x10141a,roughness:.4,metalness:.8,emissive:0}),0,.979,-.2,32),{act:'heat'});
+const bkr=new THREE.Mesh(new THREE.CylinderGeometry(bR,bR*.96,bH,40,1,true),glassM);bkr.position.set(0,bY+bH/2,bz0);S.add(bkr);
+const rim=new THREE.Mesh(new THREE.TorusGeometry(bR,.004,8,40),glassM);rim.rotation.x=PI/2;rim.position.set(0,bY+bH,bz0);S.add(rim);
+cy(bR*.96,bR*.96,.008,glassM,0,bY+.004,bz0,40);
+for(let i=1;i<=5;i++){const t=new THREE.Mesh(new THREE.PlaneGeometry(i%2?.03:.045,.003),new THREE.MeshBasicMaterial({color:0x223344}));t.position.set(-.02,bY+i*.043,bz0+bR*.985);S.add(t)}
+const lg0=new THREE.CylinderGeometry(bR*.97,bR*.93,1,40);lg0.translate(0,.5,0);
+const lm=new THREE.MeshPhysicalMaterial({color:0xd2edf7,transparent:true,opacity:.78,roughness:.05,clearcoat:1,side:THREE.DoubleSide});
+const liq=new THREE.Mesh(lg0,lm);liq.position.set(0,bY+.008,bz0);liq.scale.y=.001;S.add(liq);
+const sg=new THREE.CylinderGeometry(bR*.9,bR*.9,1,32);sg.translate(0,.5,0);const sm=new THREE.Mesh(sg,M(0xffffff,.9));sm.position.set(0,bY+.008,bz0);sm.visible=false;S.add(sm);
+const pl=new THREE.Mesh(new THREE.SphereGeometry(.06,16,10),M(0xffffff,.8));pl.position.set(0,bY+.012,bz0);pl.visible=false;S.add(pl);
+const fg=new THREE.CylinderGeometry(.085,.085,1,24);fg.translate(0,0,0);const fm=new THREE.Mesh(fg,M(0x111111,.95));fm.visible=false;fm.position.x=0;fm.position.z=bz0;S.add(fm);
+const sco=new THREE.Mesh(new THREE.CircleGeometry(.3,32),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.55,depthWrite:false}));sco.rotation.x=-PI/2;sco.position.set(0,.913,bz0);sco.visible=false;S.add(sco);
+const spl=new THREE.Mesh(new THREE.CircleGeometry(.38,32),new THREE.MeshBasicMaterial({color:0x88bbff,transparent:true,opacity:.5,depthWrite:false}));spl.rotation.x=-PI/2;spl.position.set(.05,.914,bz0+.05);spl.visible=false;S.add(spl);
+const ring=new THREE.Mesh(new THREE.RingGeometry(.1,.14,48),new THREE.MeshBasicMaterial({color:0xffe0a0,transparent:true,opacity:.8,side:THREE.DoubleSide,depthWrite:false}));ring.rotation.x=-PI/2;ring.position.set(0,.93,bz0);ring.visible=false;S.add(ring);
+[[1.2,0x6cc3ff],[-1.3,0xf2b36b]].forEach(([x,col])=>{const pf=[[0,0],[.075,0],[.075,.006],[.03,.15],[.03,.2],[.036,.205]].map(p=>new THREE.Vector2(...p));const f=new THREE.Mesh(new THREE.LatheGeometry(pf,32),glassM);f.position.set(x,.912,-.1);S.add(f);
+ const l=new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.068,.004],[.04,.09],[0,.09]].map(p=>new THREE.Vector2(...p)),24),new THREE.MeshStandardMaterial({color:col,transparent:true,opacity:.75,roughness:.1}));l.position.set(x,.915,-.1);S.add(l)});
+cy(.03,.03,.32,glassM,-.9,1.07,-.1);cy(.045,.045,.01,steel,-.9,.92,-.1);
+// màn hình phòng thí nghiệm (đọc được cả trong VR)
+const sc2=document.createElement('canvas');sc2.width=512;sc2.height=256;const sx=sc2.getContext('2d'),mt=new THREE.CanvasTexture(sc2);mt.encoding=THREE.sRGBEncoding;
+put(new THREE.Mesh(new THREE.PlaneGeometry(1.1,.55),new THREE.MeshBasicMaterial({map:mt})),0,1.62,-.62).castShadow=false;bx(1.14,.59,.03,dark,0,1.62,-.645);bx(.04,.55,.04,steel,0,1.18,-.64);
+// ----- An toàn -----
+reg(bx(.04,.45,.45,M(0x1f9d55,.5),4.46,1.35,1),{act:'eye'});
+reg(new THREE.Mesh(new THREE.SphereGeometry(.14,20,12,0,PI*2,PI/2,PI/2),new THREE.MeshStandardMaterial({color:0xaab3bd,roughness:.3,metalness:.9,side:THREE.DoubleSide})),{act:'eye'});const ew=pk[pk.length-1];put(ew,4.25,1.0,1);
+sign('RỬA MẮT KHẨN CẤP',.5,.14,'#1f9d55','#fff',4.46,1.7,1,-PI/2);
+reg(cy(.08,.08,.42,M(0xc62828,.35,.2),4.3,.75,2),{act:'ext'});reg(cy(.025,.025,.1,dark,4.3,1.03,2),{act:'ext'});sign('BÌNH CHỮA CHÁY',.5,.14,'#c62828','#fff',4.46,1.5,2,-PI/2);
+reg(bx(.5,.36,.4,M(0xf2c200,.6),4.1,.18,2.9),{act:'spill'});sign('DỌN TRÀN ĐỔ',.5,.14,'#f2c200','#222',4.46,.75,2.9,-PI/2);
+reg(cy(.22,.22,.6,M(0x1d4ed8,.5),-3.9,.3,2.1),{act:'waste'});reg(cy(.22,.22,.6,M(0xf59e0b,.5),-3.4,.3,2.4),{act:'waste'});sign('CHẤT THẢI',.8,.16,'#2f7fc0','#fff',-4.46,1.1,2.25,PI/2);
+bx(.8,.86,1.7,cab,-4.05,.43,-1);bx(.85,.05,1.75,topM,-4.05,.885,-1);const hm=M(0xdfe5ea,.5);bx(.04,1.5,1.7,hm,-4.45,1.7,-1);bx(.8,.04,1.75,hm,-4.05,2.45,-1);bx(.8,1.5,.04,hm,-4.05,1.7,-1.86);bx(.8,1.5,.04,hm,-4.05,1.7,-.14);
+const sash=reg(new THREE.Mesh(new THREE.PlaneGeometry(1.7,1),glassM),{act:'fan'});sash.position.set(-3.66,1.85,-1);sash.rotation.y=PI/2;S.add(sash);
+const fanLed=reg(new THREE.Mesh(new THREE.SphereGeometry(.035,12,8),new THREE.MeshBasicMaterial({color:0x22dd77})),{act:'fan'});fanLed.position.set(-3.64,2.35,-.3);S.add(fanLed);sign('TỦ HÚT',.7,.14,'#2f7fc0','#fff',-3.63,2.5,-1,PI/2);
+try{S.environment=new THREE.PMREMGenerator(R).fromScene(S,.04).texture}catch(e){errMsg(e)}
+// ===== HẠT HIỆU ỨNG =====
+const VS='attribute vec3 col;attribute float size,alpha;varying vec3 vc;varying float va;uniform float k;void main(){vc=col;va=alpha;vec4 m=modelViewMatrix*vec4(position,1.);gl_PointSize=max(1.,size*k/-m.z);gl_Position=projectionMatrix*m;}';
+const FS='varying vec3 vc;varying float va;void main(){float d=length(gl_PointCoord-.5);float a=smoothstep(.5,.08,d)*va;if(a<.01)discard;gl_FragColor=vec4(vc,a);}';
+class Pool{constructor(N,add,fl){this.N=N;this.i=0;this.fl=fl;const f=n=>new Float32Array(n);
+ this.p=f(N*3);this.v=f(N*3);this.c=f(N*3);this.s=f(N);this.a=f(N);this.l=f(N);this.m=f(N);this.g=f(N);this.d=f(N);this.gr=f(N);this.b=f(N);this.s0=f(N);
+ const G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.BufferAttribute(this.p,3));G.setAttribute('col',new THREE.BufferAttribute(this.c,3));G.setAttribute('size',new THREE.BufferAttribute(this.s,1));G.setAttribute('alpha',new THREE.BufferAttribute(this.a,1));
+ this.un={k:{value:1500}};this.o=new THREE.Points(G,new THREE.ShaderMaterial({uniforms:this.un,vertexShader:VS,fragmentShader:FS,transparent:true,depthWrite:false,blending:add?THREE.AdditiveBlending:THREE.NormalBlending}));this.o.frustumCulled=false;S.add(this.o)}
+ e(x,y,z,vx,vy,vz,life,size,col,al,gr=0,dr=0,grow=0){const i=this.i++%this.N,j=i*3;this.p[j]=x;this.p[j+1]=y;this.p[j+2]=z;this.v[j]=vx;this.v[j+1]=vy;this.v[j+2]=vz;this.c[j]=col.r;this.c[j+1]=col.g;this.c[j+2]=col.b;this.l[i]=this.m[i]=life;this.s[i]=this.s0[i]=size;this.b[i]=this.a[i]=al;this.gr[i]=gr;this.d[i]=dr;this.g[i]=grow}
+ up(dt,k){this.un.k.value=k;for(let i=0;i<this.N;i++){if(this.l[i]<=0){this.a[i]=0;continue}this.l[i]-=dt;const j=i*3;if(this.l[i]<=0){this.a[i]=0;continue}
+  const q=this.l[i]/this.m[i],dd=Math.max(0,1-this.d[i]*dt);this.v[j+1]-=this.gr[i]*dt;this.v[j]*=dd;this.v[j+1]*=dd;this.v[j+2]*=dd;this.p[j]+=this.v[j]*dt;this.p[j+1]+=this.v[j+1]*dt;this.p[j+2]+=this.v[j+2]*dt;
+  if(this.p[j+1]<this.fl){this.l[i]=0;this.a[i]=0;continue}this.s[i]=this.s0[i]*(1+this.g[i]*(1-q));this.a[i]=this.b[i]*Math.min(1,q*2.2)}
+  const G=this.o.geometry;['position','col','size','alpha'].forEach(n=>{G.attributes[n].needsUpdate=true})}}
+const PG=new Pool(1500,false,-9),PD=new Pool(600,false,.912),PF=new Pool(1000,true,-9);
+const surf=()=>bY+.008+liq.scale.y;
+function bubbles(k,col){for(let i=0;i<k;i++){const a=rnd()*6.28,r=Math.sqrt(rnd())*.09,y0=bY+.02+rnd()*liq.scale.y*.6,vy=.1+rnd()*.14;PG.e(Math.cos(a)*r,y0,bz0+Math.sin(a)*r,0,vy,0,Math.max(.15,(surf()-y0)/vy),.016+rnd()*.016,col,.85)}}
+function steam(k,col,sz=.07,al=.3,vy=.3,sp=.06){for(let i=0;i<k;i++){const a=rnd()*6.28,r=Math.sqrt(rnd())*.08;PG.e(Math.cos(a)*r,surf()+.02,bz0+Math.sin(a)*r,(rnd()-.5)*sp,vy+rnd()*.2,(rnd()-.5)*sp,1.6+rnd()*1.2,sz*(.7+rnd()*.6),col,al,0,.25,2.6)}}
+function flame(k){for(let i=0;i<k;i++){const a=rnd()*6.28,r=Math.sqrt(rnd())*.08;PF.e(Math.cos(a)*r,bY+bH,bz0+Math.sin(a)*r,(rnd()-.5)*.1,.5+rnd()*.5,(rnd()-.5)*.1,.35+rnd()*.45,.1+rnd()*.1,rnd()<.5?O1:O2,.85,-.3,.4,-.5)}if(rnd()<.7)PG.e((rnd()-.5)*.15,bY+bH+.1,bz0+(rnd()-.5)*.15,0,.4+rnd()*.3,0,2+rnd(),.1,GR,.4,-.05,.3,3)}
+// ===== HÓA HỌC =====
+const vol=()=>{let s=mlt;for(const i in A)if(D[i].s=='l')s+=A[i];return s};
+function pH(){if(V<1)return null;let a=0,b=0,sa=0,sb=0;for(const i in AC){a+=mo[i]*AC[i];if(i!='AcOH')sa+=mo[i]}for(const i in BA){b+=mo[i]*BA[i];if(i!='NH3'&&i!='Na2CO3')sb+=mo[i]}
+ const net=a-b,Cn=Math.abs(net)/(V/1000);if(Math.abs(net)<2e-6)return mo.NaHCO3>1e-6?8.3:7;
+ if(net>0)return sa>1e-9?-Math.log10(Cn):cl(.5*(4.76-Math.log10(Cn)),0,7);
+ return sb>1e-9?14+Math.log10(Cn):cl(14-.5*(4.75-Math.log10(Cn)),7,14)}
+function ind(i,p){const s=IN[i];if(p<=s[0][0])return new THREE.Color(s[0][1]);for(let k=1;k<s.length;k++)if(p<=s[k][0])return new THREE.Color(s[k-1][1]).lerp(new THREE.Color(s[k][1]),(p-s[k-1][0])/(s[k][0]-s[k-1][0]));return new THREE.Color(s[s.length-1][1])}
+function tgt(){const c=new THREE.Color('#d6eef8');for(const i in A){const d=D[i];if(d.k&&A[i]>0&&m0[i]>0)c.lerp(new THREE.Color(d.c),cl(1.8*Math.pow(A[i]/Math.max(V,1),.7),0,1)*cl(mo[i]/m0[i],0,1))}
+ if(mlt>.05)c.lerp(mc,cl(mlt/Math.max(V,.1),0,1));const ip=['PP','MO','UI'].find(i=>A[i]>0);if(ip&&ph!=null)c.lerp(ind(ip,ph),.88);
+ if(tkv>.01)c.lerp(tint,tkv);if(turb>.02)c.lerp(ptc,Math.min(.7,turb*.8));return c}
+const heatUp=kJ=>{T=Math.min(140,T+kJ*1000/(Math.max(vol(),10)*4.18))};
+function note(h){L.unshift(h);L.length=Math.min(L.length,3);$('#lg').innerHTML=L.map((x,i)=>`<div class="${i?'mu':''}">${x}</div>`).join('<hr>');lastTxt=h.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ')}
+function clearAll(){for(const i in A)A[i]=mo[i]=m0[i]=dsv[i]=0;act.length=0;V=0;mlt=0;sed=0;turb=0;tkv=0;tkM=0;foamT=0;fo=0;mdl=null}
+function ignite(t,why){if(fire>0)return;fire=t;safe=Math.max(0,safe-10);note(`🔥 <b>CHÁY!</b> ${why}<br>Dùng bình chữa cháy (🧯 trong phòng hoặc nút bên phải). Không dùng nước dập lửa dung môi/kim loại kiềm.`)}
+function splash(sev,msg){const c=lm.color;for(let i=0;i<50*sev+20;i++)PD.e((rnd()-.5)*.1,surf()+.03,bz0+(rnd()-.5)*.1,(rnd()-.5)*2.4*sev,1.5+rnd()*2.6*sev,(rnd()-.5)*2.4*sev,2,.018+rnd()*.012,c,.9,9.8,0,0);
+ spl.visible=true;spl.material.color.copy(c);const caus=A.H2SO4>0||A.HNO3>0||A.NaOH>0||(ph!=null&&(ph<3||ph>11));let t=msg||'Chất lỏng bắn ra ngoài cốc.';
+ if(caus){if(gog)t+='<br>🥽 Kính bảo hộ đã che chắn mắt; vẫn phải dọn tràn (🧹).';else{hitT=8;$('#hit').style.opacity=1;t+='<br><b style="color:#e5484d">⚠ Hóa chất ăn mòn bắn vào mắt! Bấm 🚿 Rửa mắt ngay (8 giây).</b>'}}
+ note('💦 <b>Văng hóa chất!</b> '+t)}
+function boom(p,why){splash(1,'');shake=.4+.5*p;fh=1;ring.visible=true;ring.scale.setScalar(.3);ring.material.opacity=.8;
+ for(let i=0;i<8;i++)PF.e((rnd()-.5)*.2,bY+.2,bz0+(rnd()-.5)*.2,0,.1,0,.3,.7+rnd()*.5,W,.9,0,0,1.5);
+ for(let i=0;i<160;i++)PF.e(0,bY+.15,bz0,(rnd()-.5)*6,rnd()*4,(rnd()-.5)*6,.4+rnd()*.6,.04+rnd()*.05,rnd()<.5?O1:O2,1,6,.5,-.5);
+ for(let i=0;i<50;i++)PG.e((rnd()-.5)*.3,bY+.2,bz0+(rnd()-.5)*.3,(rnd()-.5)*1.5,.6+rnd()*1.2,(rnd()-.5)*1.5,2.5+rnd()*1.5,.2,GR,.5,-.1,.4,3);
+ clearAll();sco.visible=true;fire=3;safe=Math.max(0,safe-25);note(`💥 <b>NỔ!</b> ${why}<br>Hậu quả: dung dịch bị văng, mặt bàn cháy sém. Bài học: dùng lượng rất nhỏ, che chắn, kính bảo hộ, tủ hút và không để nguồn lửa gần H₂.`)}
+function mkMol(r){const sp=s=>s.split(' + ').map(t=>t.trim()).filter(Boolean).map(t=>{const m=t.match(/^(\d*)\s*(.*?)\s*([↑↓]?)$/);return{k:+m[1]||1,t:m[2],g:m[3]}});
+ const[l,rt]=r.e.replace(/\s\(.*?\)/g,'').split(' → '),o={p:0,ps:[]},mk=(a,s)=>sp(a).forEach(x=>{for(let i=0;i<Math.min(7,x.k*2+1);i++)o.ps.push({x,s,i,u:rnd(),v:rnd(),w:rnd()*6.28})});mk(l,0);mk(rt,1);return o}
+function startRx(r,xi){lastTxt=r.e;r.T0=T;eqTxt=HC.on?'???':r.e;obsTxt=HC.on?'Hãy quan sát!':r.o;mdl=mkMol(r);mdl.cb='#'+lm.color.getHexString();mdl.r=r;shim(r);ST.hit(r);const lim=r.Q.map(([i,v])=>[i,mo[i]/v]).sort((a,b)=>a[1]-b[1])[0][0],V2=Math.max(V,10);
+ if(r.p){ptc.set(r.p[0]);turb=Math.max(turb,.6)}if(r.c){tint.set(r.c);tkM=r.ck}if(r.fo){foamT=r.fo;foamC.set(r.fc)}
+ let t=`<b>${r.e}</b><br>👁 <b>Hiện tượng:</b> ${r.o}<br><span class="mu">⚖ Tính toán: ξ lý thuyết = ${(xi*1000).toFixed(2)} mmol · chất hạn chế: ${D[lim].f}${r.g?` · khí ≈ ${(xi*(r.gv||1)*24500).toFixed(0)} mL ${r.g} (25 °C)`:''}${r.p?` · kết tủa: ${r.p[1]}`:''}${r.h?` · ΔT ≈ ${(r.h*1000*xi/(V2*4.18)).toFixed(0)} °C`:''}</span>`;
+ if(r.tx)t+=fan?'<br>✔ Tủ hút BẬT: khí độc được hút đi.':(safe=Math.max(0,safe-15),'<br><b style="color:#e5484d">☣ Tủ hút TẮT: khí độc lan ra phòng! −15 điểm.</b>');
+ HC.n(r,t);
+ if(r.x&&xi>r.x){boom(Math.min(1,xi/r.x*.6),'Lượng kim loại kiềm quá lớn phản ứng với nước → khí H₂ bốc cháy/nổ.');return}
+ if(r.f&&xi>r.f)ignite(6,'H₂ sinh ra bốc cháy cùng ngọn lửa vàng của natri.');
+ else if(r.h2&&fire>0){boom(.4,'Khí H₂ gặp ngọn lửa → nổ (tiếng "pốp" lớn).');return}
+ if(r.sp)splash(r.sp,'Nước nóng và NaOH bắn ra từ phản ứng mãnh liệt.')}
+function scan(){let c=0;RX.forEach(r=>{if(act.some(a=>a.r==r)||(r.k&&!(mo[r.k]>1e-6))||!r.Q.every(([i])=>mo[i]>1e-6))return;const xi=Math.min(...r.Q.map(([i,v])=>mo[i]/v));if(xi<1e-6)return;act.push({r,left:xi,xi0:xi,rate:xi/(r.d||5)});c++;startRx(r,xi)});return c}
+function add(id,k){const c=D[id],isL=c.s=='l',amt=c.cat=='Chỉ thị'?.5:isL?[5,10,25][k]:[.2,1,5][k];
+ if(isL&&vol()+amt>250){note('⚠ Cốc 250 mL đã đầy, không thêm được nữa (tránh tràn).');return}
+ const pr={...A};A[id]+=amt;if(c.M){const x=isL?amt*c.M/1000:amt/c.M;mo[id]+=x;m0[id]+=x}V=vol();
+ const col=new THREE.Color(c.c);pq=70;pq.c=col;pc=col;
+ if(id=='H2O'&&A.H2SO4>0||id=='H2SO4'&&A.H2O>0){heatUp(65*(id=='H2SO4'?amt:Math.min(amt,pr.H2SO4))*18/1000);
+  if(id=='H2O'&&pr.H2SO4>pr.H2O)splash(cl(pr.H2SO4/15,.4,1),'Cho nước vào axit đặc: nhiệt tỏa ra làm sôi cục bộ → axit bắn tung tóe! Luôn cho AXIT vào NƯỚC.');
+  else note('🌡 Pha loãng H₂SO₄ tỏa nhiệt mạnh. ✔ Đúng quy tắc: cho axit vào nước, từng ít một.')}
+ const ip=['PP','MO','UI'].find(i=>A[i]>0);if(ip&&(c.cat=='Chỉ thị'||AC[id]||BA[id])){ph=pH();if(ph!=null)note(`🎨 <b>${D[ip].n}</b> ở pH ≈ <b>${ph.toFixed(1)}</b><br><span class="mu">Khoảng đổi màu: ${IR[ip]}</span>`)}
+ const n0=scan();
+ if(!n0&&!act.length&&id!='H2O'&&id!='Ice'&&c.cat!='Chỉ thị'){const ps=Object.keys(A).filter(i=>A[i]>0&&D[i].cat!='Chỉ thị'&&i!='H2O');
+  if(ps.length>1&&!ps.every(i=>D[i].cat=='Dung môi'))note('ℹ <b>UnsupportedReaction / InsufficientData</b>: chưa có phản ứng đã kiểm chứng giữa '+ps.map(i=>D[i].f).join(' + ')+' trong dữ liệu, nên mô hình không bịa hiện tượng (ngoài đời thực vẫn có thể phản ứng!).')}}
+let pc=W;
+const fin=r=>{const dT=T-r.T0,lf=r.Q.filter(([i])=>mo[i]>1e-6).map(([i])=>D[i].f+' '+(D[i].s=='l'?(mo[i]*1000).toFixed(1)+' mmol':(mo[i]*D[i].M).toFixed(2)+' g'));return`✔ <b>Hoàn tất:</b> ${r.e.split(' → ')[0]} · nhiệt độ ${dT>=0?'+':''}${dT.toFixed(1)} °C · chất dư: ${lf.join(', ')||'không còn (vừa đủ)'}`};
+function step(dt){V=vol();ph=pH();let cap=1e9,bi=null;
+ for(const i in A){const c=D[i];if(c.s=='l'&&c.bp&&A[i]>.02&&c.bp<cap){cap=c.bp;bi=i}}
+ T+=(heat?260-T:ice?-T:25-T)*(heat?.04:ice?.09:.006)*dt;if(bi&&T>cap)T=cap;
+ let flam=0;
+ for(const i in A){const c=D[i];if(c.s!='l'||!c.bp||A[i]<=0)continue;const x=Math.max(0,(T-(c.bp-30))/30);let dv=x*x*.35*dt;if(i==bi&&heat&&T>=cap-.3)dv=1.3*dt;
+  if(dv>0){dv=Math.min(dv,A[i]);const f=dv/A[i];A[i]-=dv;mo[i]*=1-f;m0[i]*=1-f;let k=dv*90+x*.5;k=(k|0)+(rnd()<k%1?1:0);if(k)steam(k,W)}
+  if((i=='EtOH'||i=='Acet'||i=='Hex')&&heat&&T>=c.bp-6&&A[i]>.5)flam=1}
+ if(flam)vap+=dt;else vap=Math.max(0,vap-dt);if(vap>2.5&&!fire){vap=0;ignite(12,'Hơi dung môi dễ cháy gặp bề mặt bếp nóng. Không đun dung môi trên bếp hở; dùng bếp cách thủy trong tủ hút.')}
+ for(const i in A){const c=D[i];if(c.s!='s'||c.mp==null||mo[i]<=1e-9)continue;const g=mo[i]*c.M;
+  if(i=='I2'){if(T>=55){const dg=Math.min(g,(.03*(T-50)+.02)*dt);mo[i]-=dg/c.M;let k=dg*160;k=(k|0)+(rnd()<k%1?1:0);if(k)steam(k,PU,.07,.5,.2,.03)}continue}
+  if(T>=c.mp){const dg=Math.min(g,(.04*(T-c.mp)+.12)*dt);mo[i]-=dg/c.M;if(i=='Ice'){A.H2O+=dg;mo.H2O+=dg*.0555;m0.H2O+=dg*.0555}else{mlt+=dg;mc.set(c.c)}T-=dg*300/(Math.max(V,10)*4.18);if(T<c.mp)T=c.mp}}
+ if(A.H2O>.5)for(const i in SOL)if(mo[i]>1e-9)dsv[i]=Math.min(mo[i]*D[i].M,dsv[i]+.5*dt,SOL[i]*V);
+ const had=act.length,done=[];
+ for(let i=act.length-1;i>=0;i--){const a=act[i],r=a.r;let d=Math.min(a.left,a.rate*dt);for(const[id,v]of r.Q)d=Math.min(d,mo[id]/v);
+  if(d<=1e-10){act.splice(i,1);done.push(r);continue}
+  a.left-=d;for(const[id,v]of r.Q)mo[id]=Math.max(0,mo[id]-v*d);if(r.h)heatUp(r.h*d);if(r.p){sed+=d*8000;turb=Math.min(1,turb+d*300)}
+  const it=Math.min(1,.15+a.xi0*400)*(r.gs||1),gc=r.gc?new THREE.Color(r.gc):W;
+  if(r.g){gacc+=dt*it*70;const k=gacc|0;gacc-=k;bubbles(k,gc)}
+  if(r.tx)steam(Math.ceil(it),r.gc?gc:GR,.08,.35,fan?1.1:.3,fan?.04:.25);if(r.st)steam(2,W,.09,.4,.5);
+  if(mdl)mdl.p=1-a.left/a.xi0;if(a.left<=1e-10){act.splice(i,1);done.push(r)}}
+ done.forEach(x=>note(fin(x)));if(had&&!act.length){if(mdl)mdl.p=1;scan()}
+ if(fire>0){fire-=dt;let fu=0;for(const i of['EtOH','Acet','Hex'])if(A[i]>0){fu+=A[i];const d=Math.min(A[i],.9*dt),f=d/A[i];A[i]-=d;mo[i]*=1-f;m0[i]*=1-f}
+  if(fu>.05)fire=Math.max(fire,1.5);flame(7+(rnd()*5|0));if(fire<=0)note('🔥 Ngọn lửa đã tắt.')}
+ if(hitT>0){hitT-=dt;if(hitT<=0){hitT=0;$('#hit').style.opacity=0;safe=Math.max(0,safe-30);note('🚑 <b>Tổn thương mắt</b>: bạn không rửa mắt kịp thời! −30 điểm. Phải rửa ≥15 phút và đi khám.')}}
+ if(pq>0){const k=Math.min(pq,2);pq-=k;for(let i=0;i<k;i++)PD.e(.12,bY+bH+.3,bz0+(rnd()-.5)*.01,-.45,0,0,.3,.016+rnd()*.008,pc,.9,9,0,0)}
+ tkv+=(tkM-tkv)*(1-Math.exp(-dt*1.6));turb=Math.max(0,turb-dt*.04);fo+=(foamT-fo)*(1-Math.exp(-dt*1.1));
+ const hT=V>.05?Math.min(.245,.008+.232*V/250):0;liq.scale.y+=(hT-liq.scale.y)*(1-Math.exp(-dt*7));liq.visible=liq.scale.y>.004;
+ lm.color.lerp(tgt(),1-Math.exp(-dt*3.2));lm.opacity=.72+.26*Math.min(1,turb);
+ sm.visible=sed>.3;sm.scale.y=Math.min(.07,sed*.0016)+.001;sm.material.color.copy(ptc);
+ let ms=0,dom=null,dm=0;for(const i in A){const c=D[i];if(c.s=='s'){const g=Math.max(0,mo[i]*c.M-dsv[i]);ms+=g;if(g>dm){dm=g;dom=c}}}
+ pl.visible=ms>.02;if(dom){pl.material.color.set(dom.c);const s=Math.min(1.35,.3+Math.cbrt(ms/5)*.85);pl.scale.set(s,s*.45,s)}
+ fm.visible=fo>.01;fm.scale.y=Math.max(.001,fo*.55);fm.position.y=bY+.008+liq.scale.y*.8+fm.scale.y/2;fm.material.color.copy(foamC);
+ hr.material.emissive.setHex(heat?0xff3b00:0);hr.material.emissiveIntensity=heat?.7:0;
+ tq+=dt;if(tq>.25){tq=0;ui();scr()}}
+// ===== ĐIỀU KHIỂN & GIAO DIỆN =====
+function sync(){$('#bh').classList.toggle('on',!!heat);$('#bi').classList.toggle('on',!!ice);$('#bg').textContent='🥽 Kính: '+(gog?'BẬT':'TẮT');$('#bf').textContent='🌀 Tủ hút: '+(fan?'BẬT':'TẮT');$('#bg').classList.toggle('on',!!gog);$('#bf').classList.toggle('on',!!fan);fanLed.material.color.set(fan?0x22dd77:0xdd2222)}
+function ui(){const rows=Object.keys(A).filter(i=>A[i]>.001||mo[i]>1e-7).map(i=>{const c=D[i];return`<div class="it" style="cursor:default"><i class="dot" style="background:${c.c};border-radius:${c.s=='s'?'3px':'50%'}"></i><span><b>${c.f}</b> ${c.s=='l'?A[i].toFixed(1)+' mL':(mo[i]*c.M).toFixed(2)+' g'}${c.M?` <span class="mu">· ${(mo[i]*1000).toFixed(1)} mmol</span>`:''}</span></div>`}).join('')||'<span class="mu">Cốc trống</span>';
+ $('#ms').innerHTML=`🌡 <b style="color:${T>60?'#e5484d':T<10?'#0a84d6':'inherit'}">${T.toFixed(1)} °C</b> · 💧 <b>${V.toFixed(1)} mL</b> · pH ≈ <b>${ph==null?'—':ph.toFixed(1)}</b><div class="mu">pH là xấp xỉ (mô hình axit/bazơ mạnh–yếu đơn giản); màu chỉ thị tính theo pH.</div>`;$('#ct').innerHTML=rows;$('#pg').innerHTML=act.map(a=>{const p=((1-a.left/a.xi0)*100).toFixed(0);return`⚗ ${a.r.e.split(' → ')[0]}: <b>${p}%</b><div style="height:5px;border-radius:3px;background:var(--bd)"><div style="height:5px;border-radius:3px;background:var(--ac);width:${p}%"></div></div>`}).join('');$('#sf').textContent=safe;ccUp()}
+function scr(){const g=sx;g.fillStyle='#0b1f33';g.fillRect(0,0,512,256);g.fillStyle='#6fd3ff';g.font='bold 22px sans-serif';g.fillText('CHEM-LAB MONITOR',14,30);g.fillStyle='#e8f6ff';g.font='20px sans-serif';g.fillText(`T ${T.toFixed(1)}°C   V ${V.toFixed(1)} mL   pH ${ph==null?'—':ph.toFixed(1)}`,14,64);
+ g.fillStyle='#9fd0f0';g.font='16px sans-serif';let l='',y=96;for(const w of (eqTxt+' — '+obsTxt).slice(0,250).split(' ')){if(g.measureText(l+w).width>484){g.fillText(l,14,y);y+=22;l=''}l+=w+' '}g.fillText(l,14,y);g.fillStyle=safe>60?'#3ddc97':'#ff6b6b';g.fillText('An toàn '+safe+'/100',14,244);mt.needsUpdate=true}
+const mx=$('#mc').getContext('2d'),hs=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))%360;return h};
+const CP={H:'#fff',C:'#666',O:'#ef5350',N:'#5c7cfa',S:'#f7d51d',Cl:'#40d68a',Na:'#b07cff',K:'#9a6ae0',Cu:'#e08a3a',Fe:'#d1612a',Ag:'#cdd3da',Ca:'#7fd06a',Zn:'#8794a8',Mg:'#9be15d',Al:'#d2a8bf',Pb:'#707580',Ba:'#3fae6a',I:'#8a2fb0',Br:'#b23a28',Mn:'#c060b0',Cr:'#3fb8a8',Ni:'#58b36a',Co:'#e0568d',P:'#ff9a1f'};
+const nz=t=>t.replace(/[₀-₉]/g,d=>d.charCodeAt(0)-8320).replace(/[⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻↑↓\[\]\s]/g,'');
+function molDraw(g,f,x,y,t,lab){const a=[];f.replace(/([A-Z][a-z]?)(\d*)/g,(m,e,n)=>{for(let i=0;i<Math.min(+n||1,3);i++)a.push(e)});a.length=Math.min(a.length,6);const c=Math.max(0,a.findIndex(e=>e!='H')),P=a.map((e,i)=>{if(i==c)return[x,y];const k=i<c?i:i-1,an=t*.6+k*6.28/Math.max(1,a.length-1);return[x+Math.cos(an)*14,y+Math.sin(an)*11]});
+ g.strokeStyle='rgba(120,60,90,.5)';g.lineWidth=2;P.forEach((p,i)=>{if(i!=c){g.beginPath();g.moveTo(x,y);g.lineTo(p[0],p[1]);g.stroke()}});
+ P.forEach((p,i)=>{g.fillStyle=CP[a[i]]||'#c78fb0';g.beginPath();g.arc(p[0],p[1],a[i]=='H'?4:i==c?8:6.5,0,6.3);g.fill();g.strokeStyle='rgba(90,40,70,.35)';g.lineWidth=1;g.stroke()});
+ if(lab){g.fillStyle='#7a3a5a';g.font='bold 9px sans-serif';g.fillText(lab,x,y+23)}}
+function drawMol(t){const g=mx,Wd=300;g.clearRect(0,0,Wd,178);g.textAlign='center';if(!mdl){g.fillStyle='#b07a96';g.font='12px sans-serif';g.fillText('Thêm 2 chất có phản ứng để xem mô hình',Wd/2,80);return}
+ const p=mdl.p,hc=HC.on&&!mdl.rv;g.font='bold 11px sans-serif';g.fillStyle='#b0537f';g.fillText('CHẤT ĐẦU',65,12);g.fillText(hc?'SẢN PHẨM (?)':'SẢN PHẨM',235,12);g.font='22px sans-serif';g.fillText('➜',150,72+Math.sin(t*4)*2);
+ for(const q of mdl.ps){const x=(q.s?170:12)+q.u*112+Math.sin(t*1.7+q.w)*5,al=q.s?.12+.88*p:1-.8*p;let y=26+q.v*95+Math.cos(t*1.3+q.w)*5;
+  if(q.s&&q.x.g=='↑')y=((y-t*40*p)%95+95)%95+24;if(q.s&&q.x.g=='↓')y+=(118-y)*p*.8;
+  g.globalAlpha=Math.max(.06,al);if(q.s&&hc){g.fillStyle='#d9a7c0';g.beginPath();g.arc(x,y,11,0,6.3);g.fill();g.fillStyle='#fff';g.font='bold 12px sans-serif';g.fillText('?',x,y+4);continue}
+  molDraw(g,nz(q.x.t),x,y,t+q.w,q.i==0?q.x.t:'')}
+ g.globalAlpha=1;const gr=g.createLinearGradient(30,0,270,0);gr.addColorStop(0,mdl.cb);gr.addColorStop(1,'#'+lm.color.getHexString());g.fillStyle=gr;g.fillRect(30,146,240,12);g.strokeStyle='rgba(160,80,120,.4)';g.strokeRect(30,146,240,12);
+ g.fillStyle='#8a4a6a';g.font='10px sans-serif';g.fillText('Màu trước',55,172);g.fillText(`${(p*100)|0}% hoàn thành`,150,172);g.fillText('Màu hiện tại',248,172)}
+function lst(){const q=$('#q').value.toLowerCase();$('#lst').innerHTML=[...new Set(CH.map(c=>c.cat))].map(ct=>{const xs=CH.filter(c=>c.cat==ct&&(!q||(c.n+c.f+c.id).toLowerCase().includes(q)));return xs.length?`<div class="ch">${ct}</div>`+xs.map(c=>`<div class="it" data-i="${c.id}" title="${c.hz}"><i class="dot" style="background:${c.c};border-radius:${c.s=='s'?'3px':'50%'}"></i><span><b>${c.f}</b> <span class="mu">${c.n}</span></span></div>`).join(''):''}).join('')}
+function extg(){for(let i=0;i<70;i++)PG.e((rnd()-.5)*.1,bY+bH+.1,bz0,(rnd()-.5)*.8,.3+rnd()*.8,(rnd()-.5)*.8,.9+rnd()*.6,.09,W,.5,0,1.2,2);
+ if(fire>0){fire=0;note('✅ <b>Dập lửa thành công</b> bằng bình CO₂/bột: nhắm vào gốc lửa. Không dùng nước với dung môi cháy hoặc kim loại kiềm.')}else note('🧯 Không có đám cháy. Bình chữa cháy đặt gần lối ra và được kiểm tra áp suất định kỳ.')}
+function eyew(){if(hitT>0){hitT=0;$('#hit').style.opacity=0;note('✅ <b>Rửa mắt đúng cách</b>: xả nước liên tục ≥15 phút rồi đến cơ sở y tế.')}else note('🚿 Trạm rửa mắt/vòi sen: dùng ngay khi hóa chất dính vào mắt hoặc da, không chờ đến khi đau.')}
+function spk(){if(spl.visible||sco.visible){spl.visible=sco.visible=false;note('🧹 Đã xử lý tràn đổ: rắc NaHCO₃ lên axit (hoặc axit yếu lên bazơ), thấm bằng vật liệu hút, cho vào thùng chất thải.')}else note('🧹 Không có tràn đổ cần dọn.')}
+function dispose(){if(act.length||T>60){note('⏳ Chờ phản ứng kết thúc và nguội dưới 60 °C trước khi đổ bỏ.');return}
+ if(!Object.keys(A).some(i=>A[i]>0||mo[i]>1e-7)){note('Cốc đang trống.');return}
+ if(ph!=null&&(ph<5.5||ph>8.5)){note(`⚠ pH ≈ ${ph.toFixed(1)}: trung hòa về pH 6–8 trước khi bỏ vào bình chất thải (thêm NaHCO₃ hoặc axit loãng).`);safe=Math.max(0,safe-3);return}
+ const hv=A.PbNO32||A.AgNO3||A.BaCl2||A.CuSO4||A.Cu,og=A.EtOH||A.Acet||A.Hex||A.Wax;
+ note(`🗑 Đã đổ vào <b>${hv?'thùng cam: kim loại nặng':og?'thùng dung môi hữu cơ':'thùng chất thải thông thường (xanh)'}</b>. Không đổ hóa chất xuống cống.`);clearAll();fire=0;T=Math.min(T,30)}
+function doPick(u){snd(u.id?660:520,.09);if(u.id)add(u.id,lvl);else{const f={ext:extg,eye:eyew,spill:spk,heat:()=>{heat=heat?0:1;ice=0;sync()},fan:()=>{fan=fan?0:1;sync()},waste:dispose,...ACTS}[u.act];f&&f()}}
+function rst(){tmr.forEach(clearTimeout);tmr=[];eqTxt='Sẵn sàng';obsTxt='Thêm hóa chất để bắt đầu.';clearAll();heat=ice=0;fan=gog=1;safe=100;fire=0;hitT=0;shake=0;T=25;sco.visible=spl.visible=ring.visible=false;$('#hit').style.opacity=0;L=[];sync();
+ note('👋 <b>Chào mừng đến ChemVR Lab</b><br>Chọn lượng (Ít/Vừa/Nhiều) rồi bấm <b>chai trên kệ</b> hoặc trong danh sách để đổ vào cốc; thử <b>🎬 Thí nghiệm mẫu</b> ở thanh trên. Phản ứng được tính từ lượng chất (mol, chất hạn chế); chỉ những phản ứng đã có trong dữ liệu mới có hiệu ứng.<br>🖱 <b>Tương tác mới</b>: bấm <b>cánh tủ dưới bàn</b> (E) để mở, lấy <b>đũa thủy tinh</b> rồi <b>khuấy</b> (F); lấy cốc sạch, nước cất; ra <b>bồn rửa tay</b> bật vòi (T), bơm xà phòng và chà tay.')}
+function run(i){rst();note('▶ <b>Thí nghiệm mẫu:</b> '+DM[i][0]);DM[i][1].forEach((a,j)=>tmr.push(setTimeout(()=>{const f={'#h':()=>{heat=1;ice=0;sync()},'#g':()=>{gog=0;sync()},'#f':()=>{fan=0;sync()},'#s':()=>$('#bs').click(),'#w':()=>{}}[a[0]];f?f():add(a[0],a[1])},900+j*1500)))}
+let og;DM.forEach((d,i)=>{if(d.length==1){og=document.createElement('optgroup');og.label=d[0];$('#dm').add(og)}else og.append(new Option(d[0],i))});$('#dm').onchange=e=>{if(e.target.value!==''){run(+e.target.value);e.target.value=''}};
+$('#lst').onclick=e=>{const t=e.target.closest('.it');if(t)add(t.dataset.i,lvl)};$('#q').oninput=lst;
+document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{lvl=+b.dataset.k;document.querySelectorAll('[data-k]').forEach(x=>x.classList.toggle('on',x==b))});
+document.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>view(+b.dataset.v));
+$('#vk').onclick=()=>{const b=$('#bank');b.hidden=!b.hidden};$('#vm').onclick=e=>{const m=$('#mol');m.hidden=!m.hidden;e.target.classList.toggle('on',!m.hidden)};
+$('#bh').onclick=()=>{heat=heat?0:1;ice=0;sync()};$('#bi').onclick=()=>{ice=ice?0:1;heat=0;sync()};$('#bw').onclick=dispose;
+$('#bs').onclick=()=>{if(V<1){note('Cốc trống: hãy thêm chất lỏng rồi thử tình huống đổ/văng.');return}splash(.9,'Cốc bị va chạm, chất lỏng bắn ra.');for(const i in A)if(D[i].s=='l'){A[i]*=.6;mo[i]*=.6;m0[i]*=.6}};
+$('#bg').onclick=()=>{gog=gog?0:1;sync()};$('#bf').onclick=()=>{fan=fan?0:1;sync()};$('#be').onclick=extg;$('#by').onclick=eyew;$('#bk').onclick=spk;$('#rs').onclick=rst;$('#br').oninput=e=>{R.toneMappingExposure=+e.target.value};
+// camera quỹ đạo + di chuyển
+const cm={y:.35,p:.28,d:2.6,t:new THREE.Vector3(0,1.15,-.2)},cd={y:.35,p:.28,d:2.6,t:new THREE.Vector3(0,1.15,-.2)},keys={};
+const VW=[[.35,.28,2.6,0,1.15,-.2],[0,.08,2.7,0,1.75,-2.5],[-1.25,.18,3,3.7,1.1,1.6],[1.3,.15,3,-3.6,1.4,-1]];
+function view(i){const v=VW[i];cd.y=v[0];cd.p=v[1];cd.d=v[2];cd.t.set(v[3],v[4],v[5])}
+function cam(dt){if(R.xr.isPresenting)return;const k=1-Math.exp(-dt*7),sh=RM?0:shake;cm.y+=(cd.y-cm.y)*k;cm.p+=(cd.p-cm.p)*k;cm.d+=(cd.d-cm.d)*k;cm.t.lerp(cd.t,k);const cp=Math.cos(cm.p);
+ C.position.set(cm.t.x+cm.d*Math.sin(cm.y)*cp+(rnd()-.5)*sh*.12,cm.t.y+cm.d*Math.sin(cm.p)+(rnd()-.5)*sh*.12,cm.t.z+cm.d*Math.cos(cm.y)*cp);C.lookAt(cm.t)}
+function mv(dt){const f=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0),r=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);if(f||r){const s=2.2*dt;cd.t.x=cl(cd.t.x+(-Math.sin(cd.y)*f+Math.cos(cd.y)*r)*s,-3.8,3.8);cd.t.z=cl(cd.t.z+(-Math.cos(cd.y)*f-Math.sin(cd.y)*r)*s,-2.5,2.8)}}
+addEventListener('keydown',e=>{if(e.target.tagName!='INPUT')keys[e.key.toLowerCase()]=1});addEventListener('keyup',e=>{keys[e.key.toLowerCase()]=0});
+const pv=new THREE.Vector2();let dg=null;
+function ray(e){const r=cv.getBoundingClientRect();pv.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);rc.setFromCamera(pv,C);return rc.intersectObjects(pk,false)[0]}
+cv.onpointerdown=e=>{dg={x:e.clientX,y:e.clientY,m:0};cv.setPointerCapture(e.pointerId)};
+cv.onpointermove=e=>{if(dg){dg.m+=Math.abs(e.clientX-dg.x)+Math.abs(e.clientY-dg.y);cd.y-=(e.clientX-dg.x)*.006;cd.p=cl(cd.p+(e.clientY-dg.y)*.006,-.15,1.3);dg.x=e.clientX;dg.y=e.clientY}else hov(e)};
+cv.onpointerup=e=>{if(dg&&dg.m<6){const h=ray(e);if(h)doPick(h.object.userData)}dg=null};
+cv.onwheel=e=>{e.preventDefault();cd.d=cl(cd.d*(1+e.deltaY*.001),.7,7)};
+// VR (WebXR)
+[0,1].forEach(i=>{const c=R.xr.getController(i),ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-1)]),new THREE.LineBasicMaterial({color:0x4cc9f0}));ln.scale.z=3;c.add(ln);rig.add(c);
+ c.addEventListener('select',()=>{const m=new THREE.Matrix4().extractRotation(c.matrixWorld);rc.ray.origin.setFromMatrixPosition(c.matrixWorld);rc.ray.direction.set(0,0,-1).applyMatrix4(m);const h=rc.intersectObjects(pk,false)[0];if(h)doPick(h.object.userData)})});
+const vrb=$('#vr');if(navigator.xr)navigator.xr.isSessionSupported('immersive-vr').then(o=>{vrb.hidden=!o}).catch(()=>{});
+vrb.onclick=async()=>{try{R.xr.setReferenceSpaceType('local-floor');const s=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor']});await R.xr.setSession(s);note('🥽 VR: dùng tia điều khiển bấm chai hóa chất, bếp, bình chữa cháy; xem kết quả trên màn hình giữa phòng.')}catch(e){note('Không mở được VR: '+e.message)}};
+R.xr.addEventListener('sessionstart',()=>rig.position.set(0,0,1.25));R.xr.addEventListener('sessionend',()=>rig.position.set(0,0,0));
+// ===== HUD màu, hiệu ứng đổi màu =====
+function ccUp(){const b=$('#cc'),r=mdl&&mdl.r;b.innerHTML=r?`<div class="r"><span class="mu">🎨 Màu:</span><i class="sw" style="background:${mdl.cb}"></i>➜<i class="sw" style="background:#${lm.color.getHexString()}"></i>${r.p?`<span class="mu">+ kết tủa</span><i class="sw" style="background:${r.p[0]}"></i>`:''}</div>`:''}
+function shim(r){const col=r.c||(r.p&&r.p[0]);if(!col)return;const cc=new THREE.Color(col);for(let i=0;i<45;i++){const a=rnd()*6.28,q=Math.sqrt(rnd())*.09;PG.e(Math.cos(a)*q,surf()+.01,bz0+Math.sin(a)*q,(rnd()-.5)*.1,.1+rnd()*.14,(rnd()-.5)*.1,1.5,.03,cc,.9,0,.3,1.2)}}
+// ===== CHẾ ĐỘ HARDCORE: đoán chất tạo thành =====
+const hn=t=>nz(t).replace(/[()+\-^·]/g,'').replace(/^\d+(?=[A-Z])/,'').toLowerCase(),
+ ans=r=>r.e.replace(/\s\(.*?\)/g,'').split(' → ')[1].split(' + ').map(hn).filter(x=>x&&x!='h2o');
+const HC={on:0,lives:3,score:0,streak:0,qs:[],cur:null,h:0,
+ n(r,t){if(!this.on){note(t);return}note(t.replace(/^[\s\S]*?<\/span>/,'❓ <b>Có phản ứng!</b> Quan sát hiện tượng rồi đoán chất tạo thành.'));this.qs.push(r);if(!this.cur)this.show()},
+ show(){const b=$('#hq');if(!this.on||!this.qs.length){b.hidden=true;this.cur=null;return}this.cur=this.qs[0];b.hidden=false;$('#hqt').innerHTML=`💀 <b>Hardcore</b> · ${'❤'.repeat(this.lives)} · ${this.score} điểm · chuỗi ${this.streak}<br>Chất phản ứng: <b>${this.cur.e.split(' → ')[0]}</b><br><span class="mu">Chất tạo thành là gì? Gõ công thức, vd: AgCl, CO2, Cu(OH)2</span>`;$('#hqi').value='';$('#hqi').focus()},
+ go(sk){const r=this.cur;if(!r)return;const a=hn($('#hqi').value);if(!sk&&!a)return;const ok=!sk&&ans(r).includes(a),pt=Math.max(2,10*(1+this.streak)-(this.h?5:0));
+  if(ok){this.score+=pt;this.streak++}else{this.lives--;this.streak=0}
+  this.h=0;eqTxt=r.e;obsTxt=r.o;if(mdl&&mdl.r==r)mdl.rv=1;
+  note(`${ok?'✅ <b>Chính xác!</b> +'+pt+' điểm':'❌ <b>Chưa đúng</b> (−1 ❤)'}<br><b>${r.e}</b><br>👁 ${r.o}`);this.qs.shift();this.cur=null;
+  if(this.lives<=0){note(`💀 <b>GAME OVER</b> — điểm: ${this.score}. Hardcore khởi động lại.`);this.lives=3;this.score=0;this.qs=[];rst()}this.show()},
+ hint(){const r=this.cur;if(!r)return;this.h=1;const a=ans(r)[0]||'';note(`💡 Gợi ý: chất đầu tiên có ${a.length} ký tự, bắt đầu bằng "<b>${a?a[0].toUpperCase():'?'}</b>" · ${r.p?'có kết tủa':r.g?'có khí thoát ra':'dung dịch đổi màu / nhiệt độ'}`)}};
+$('#hqg').onclick=()=>HC.go();$('#hqs').onclick=()=>HC.go(1);$('#hqh').onclick=()=>HC.hint();$('#hqi').onkeydown=e=>{if(e.key=='Enter')HC.go()};
+$('#hc').onclick=e=>{HC.on=HC.on?0:1;e.target.textContent='💀 Hardcore: '+(HC.on?'BẬT':'TẮT');e.target.classList.toggle('on',!!HC.on);Object.assign(HC,{qs:[],cur:null,lives:3,score:0,streak:0});rst();HC.show();if(HC.on)note('💀 <b>HARDCORE</b>: phương trình & sản phẩm bị ẩn. Gây phản ứng, quan sát màu/khí/kết tủa rồi gõ công thức chất tạo thành. 3 mạng ❤, đoán liên tiếp để nhân điểm.')};
+// ===== CỐT TRUYỆN NHẬP VAI =====
+const SC=[
+{w:'🌸 Giáo sư Anh Đào',t:'Em đến đúng lúc! Đêm qua <b>"Viên Ngọc Sắc Màu"</b> – nguồn màu của cả học viện – đã biến mất, mọi thứ nhạt dần thành trắng xám. Kẻ trộm để lại vài dấu vết hóa học. Hãy làm thí nghiệm để lần ra hắn, thực tập sinh!'},
+{w:'🐱 Mochi (mèo robot)',t:'Meo! Có vệt ĐỎ MÁU trên sàn. Nhỏ KSCN vào dung dịch FeCl₃ xem hắn có để lại ion Fe³⁺ không.',g:'FeCl3+KSCN',ok:'Đỏ máu hiện ra: có Fe³⁺!'},
+{w:'🐱 Mochi',t:'Còn bột trắng trong ngăn kéo. Cho AgNO₃ vào dung dịch NaCl để nhận ra anion Cl⁻ (kết tủa trắng đục).',g:'AgNO3+NaCl',ok:'AgCl trắng đục: có Cl⁻ → hợp chất là FeCl₃!'},
+{w:'🌸 Giáo sư Anh Đào',t:'Xác nhận lần cuối: thêm NaOH vào FeCl₃ để thấy kết tủa nâu đỏ Fe(OH)₃ – màu áo của kẻ trộm.',g:'FeCl3+NaOH',ok:'Nâu đỏ! Bằng chứng khớp hoàn toàn.'},
+{w:'🕵 Phòng thẩm vấn',t:'Ba nghi phạm: <b>Anh Sắt</b> (áo nâu đỏ, dùng muối FeCl₃), <b>Thầy Đồng</b> (áo xanh lam), <b>Cô Chì</b> (tóc vàng). Ai là kẻ trộm?',ch:[['Anh Sắt',1],['Thầy Đồng',0],['Cô Chì',0]]},
+{w:'👻 Ma Sắc (Anh Sắt)',t:'Hừ! Ta đã tẩy hết màu của học viện… axit đang rò rỉ khắp nơi! Hãy trung hòa HCl bằng NaOH trước khi quá muộn!',g:'HCl+NaOH',ok:'Axit đã trung hòa, phòng an toàn trở lại.'},
+{w:'🌸 Giáo sư Anh Đào',t:'Giờ phục hồi màu sắc. Trước hết là xanh Phổ: nhỏ K₄[Fe(CN)₆] vào FeCl₃.',g:'FeCl3+K4FeCN6',ok:'Xanh Phổ đậm sắc trở lại!'},
+{w:'🌸 Giáo sư Anh Đào',t:'Sắc vàng đâu rồi? Trộn Pb(NO₃)₂ với K₂CrO₄ để có vàng chrome.',g:'PbNO32+K2CrO4',ok:'Vàng chrome rực rỡ!'},
+{w:'🌸 Giáo sư Anh Đào',t:'Màn cuối: cho K₂Cr₂O₇ (cam), FeSO₄ và H₂SO₄ loãng – màu cam sẽ chuyển sang lục, tái tạo Viên Ngọc Sắc Màu!',g:'K2Cr2O7+FeSO4+H2SO4d',ok:'Cam → lục! Viên Ngọc Sắc Màu được tái tạo.'},
+{w:'🎉 Kết thúc',t:'Cả học viện lại rực rỡ sắc xanh pha lê. Bạn được phong hàm <b>Nhà Hóa Học Sắc Màu</b>! Thử bật <b>💀 Hardcore</b> hoặc khám phá ~100 thí nghiệm mới trong 🎬 danh sách mẫu.'}];
+const gk=t=>t.split('+').sort().join('+');
+const ST={i:0,xp:0,on:1,
+ show(){const b=$('#sty'),c=SC[this.i];b.hidden=!this.on;b.innerHTML=`<b>${c.w}</b> <span class="mu">· Chương ${this.i}/${SC.length-1} · ⭐${this.xp}</span><div style="margin:6px 0">${c.t}</div>`+(c.ch?`<div class="r">${c.ch.map(([n,k])=>`<button data-c="${k}">${n}</button>`).join('')}</div>`:c.g?`<div class="mu">🎯 Nhiệm vụ: gây phản ứng giữa ${c.g.split('+').map(i=>D[i].f).join(' + ')}</div>`:`<div class="r"><button data-n="${this.i<SC.length-1?1:0}">${this.i<SC.length-1?'Tiếp tục ▶':'↺ Chơi lại'}</button></div>`)},
+ hit(r){const c=SC[this.i];if(c&&c.g&&gk(c.g)==r.Q.map(x=>x[0]).sort().join('+')){this.xp+=50;note('📖 <b>Hoàn thành nhiệm vụ!</b> '+c.ok+' (+50⭐)');this.i++;setTimeout(()=>this.show(),2200)}}};
+$('#sty').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.c!==undefined){if(+b.dataset.c){ST.xp+=100;ST.i++;note('🎯 <b>Đúng!</b> Anh Sắt là thủ phạm (+100⭐).')}else{note('❌ Chưa khớp bằng chứng: Fe³⁺ + Cl⁻ + kết tủa nâu đỏ → muối FeCl₃. Thử lại!');return}}else if(b.dataset.n==='0'){ST.i=0;ST.xp=0}else ST.i++;ST.show()};
+$('#sb').onclick=e=>{ST.on=ST.on?0:1;e.target.classList.toggle('on',!!ST.on);ST.show()};
+$('#q').placeholder='Tìm trong '+CH.length+' hóa chất…';$('#dm').options[0].text='🎬 '+DM.filter(d=>d.length>1).length+' thí nghiệm mẫu…';ST.show();
+// ===== V2: TƯƠNG TÁC & HIỆU ỨNG LUNG LINH =====
+const NM={cab:'Mở/đóng cánh tủ (E)',rod:'Đũa thủy tinh',cup:'Thay cốc sạch',flask:'Lấy nước cất',stir:'Khuấy bằng đũa (F)',tap:'Vòi nước (T)',soap:'Bơm xà phòng',hands:'Chà tay',heat:'Bếp đun',eye:'Rửa mắt',ext:'Bình chữa cháy',spill:'Dọn tràn',waste:'Thùng chất thải',fan:'Tủ hút'};
+let cbO=0,cbA=0,hasRod=0,stirT=0,stA=0,tapOn=0,soap=0,scrub=0,rinseT=0,rubT=0,v2c=0,toT,au;
+const WTR=new THREE.Color(0x8fd3ff),PK=new THREE.Color(0x6fc8ff);
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('s');clearTimeout(toT);toT=setTimeout(()=>t.classList.remove('s'),2200)}
+function snd(f,d=.12,ty='sine',v=.05){try{au=au||new(window.AudioContext||window.webkitAudioContext)();const o=au.createOscillator(),g=au.createGain();o.type=ty;o.frequency.value=f;g.gain.setValueAtTime(v,au.currentTime);g.gain.exponentialRampToValueAtTime(.0001,au.currentTime+d);o.connect(g);g.connect(au.destination);o.start();o.stop(au.currentTime+d)}catch(e){}}
+function hov(e){const h=ray(e),t=$('#tip');cv.style.cursor=h?'pointer':'grab';if(h){const u=h.object.userData,n=u.id?D[u.id].n:NM[u.act]||'';t.textContent=n;t.style.display=n?'block':'none';t.style.left=e.clientX+14+'px';t.style.top=e.clientY+16+'px'}else t.style.display='none'}
+// ----- Tủ dụng cụ có cánh mở -----
+const rodM=new THREE.MeshStandardMaterial({color:0x12264a,roughness:.35,metalness:.3});
+bx(1.5,.62,.01,M(0x9fc4e4),0,.43,.312);bx(1.56,.04,.15,topM,0,.76,.38);bx(1.56,.04,.15,topM,0,.12,.38);[-.77,.77].forEach(x=>bx(.04,.64,.15,topM,x,.43,.38));
+const dpv=new THREE.Group();dpv.position.set(-.75,.43,.46);S.add(dpv);
+const doorT=tex((g,w,h)=>{const q=g.createLinearGradient(0,0,w,h);q.addColorStop(0,'#8ec5f2');q.addColorStop(1,'#b9d8ff');g.fillStyle=q;g.fillRect(0,0,w,h);g.strokeStyle='#fff';g.lineWidth=5;g.strokeRect(8,8,w-16,h-16);g.fillStyle='#fff';g.font='bold 30px sans-serif';g.textAlign='center';g.textBaseline='middle';g.fillText('✿ TỦ DỤNG CỤ ✿',w/2,h/2)},512,212);
+const dmesh=reg(new THREE.Mesh(new THREE.BoxGeometry(1.5,.62,.03),new THREE.MeshBasicMaterial({map:doorT})),{act:'cab'});dmesh.position.x=.75;dpv.add(dmesh);
+const kn=reg(new THREE.Mesh(new THREE.SphereGeometry(.03,12,8),M(0x2f7fc0)),{act:'cab'});kn.position.set(1.35,0,.035);dpv.add(kn);
+reg(cy(.045,.045,.26,glassM,-.45,.27,.38),{act:'rod'});
+const rod0=reg(cy(.008,.008,.36,rodM,-.45,.31,.38),{act:'rod'});rod0.rotation.z=.08;
+reg(cy(.075,.07,.17,glassM,0,.225,.38),{act:'cup'});
+const fk=reg(new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.085,0],[.085,.005],[.03,.13],[.03,.19],[.037,.195]].map(p=>new THREE.Vector2(...p)),28),glassM),{act:'flask'});fk.position.set(.45,.14,.38);S.add(fk);
+const fkl=new THREE.Mesh(new THREE.LatheGeometry([[0,0],[.078,.004],[.04,.09],[0,.09]].map(p=>new THREE.Vector2(...p)),24),new THREE.MeshStandardMaterial({color:0x9fdcff,transparent:true,opacity:.8,roughness:.1}));fkl.position.set(.45,.145,.38);S.add(fkl);
+// ----- Đũa khuấy trong cốc -----
+const rdp=new THREE.Group(),rg=new THREE.CylinderGeometry(.006,.006,.34,8);rg.translate(0,.17,0);rdp.add(new THREE.Mesh(rg,rodM));rdp.position.set(0,bY+.012,bz0);rdp.rotation.z=-.28;rdp.visible=false;S.add(rdp);reg(bkr,{act:'stir'});
+// ----- Bồn rửa tay -----
+bx(.8,.86,1,cab,-4.05,.43,.65);bx(.85,.05,1.05,topM,-4.05,.885,.65);cy(.27,.25,.012,M(0x9fc0da),-4.05,.912,.65,36);
+reg(cy(.02,.02,.34,steel,-4.38,1.07,.65),{act:'tap'});const fa2=reg(cy(.018,.018,.33,steel,-4.215,1.23,.65),{act:'tap'});fa2.rotation.z=PI/2;
+const tH=reg(new THREE.Mesh(new THREE.SphereGeometry(.035,12,8),M(0x2f7fc0)),{act:'tap'});tH.position.set(-4.38,1.27,.65);S.add(tH);
+reg(cy(.04,.04,.14,M(0x6fc8ff),-3.8,.985,.95),{act:'soap'});reg(cy(.012,.012,.07,M(0x2f7fc0),-3.8,1.09,.95),{act:'soap'});
+sign('BỒN RỬA TAY',.7,.14,'#2f7fc0','#fff',-4.46,1.62,.65,PI/2);
+const strm=new THREE.Mesh(new THREE.CylinderGeometry(.008,.008,.3,8),new THREE.MeshBasicMaterial({color:0x8fd3ff,transparent:true,opacity:.7}));strm.position.set(-4.05,1.065,.65);strm.visible=false;S.add(strm);
+const hands=new THREE.Group();hands.position.set(-4.05,1.0,.65);hands.visible=false;[-.05,.05].forEach(x=>{const h=reg(new THREE.Mesh(new THREE.SphereGeometry(.055,14,10),M(0xffd6c0)),{act:'hands'});h.scale.set(1,.45,1.5);h.position.x=x;hands.add(h)});S.add(hands);
+VW.push([1.2,.2,2.6,-3.9,1.2,.65]);
+// ----- Lấp lánh, đèn dây, quầng sáng -----
+const SPN=220,spP=new Float32Array(SPN*3),spC=new Float32Array(SPN*3),spG=new THREE.BufferGeometry();
+for(let i=0;i<SPN;i++){spP.set([(rnd()-.5)*8.4,rnd()*3,(rnd()-.5)*6+.25],i*3);const c=new THREE.Color().setHSL(.5+rnd()*.15,.8,.75);spC.set([c.r,c.g,c.b],i*3)}
+spG.setAttribute('position',new THREE.BufferAttribute(spP,3));spG.setAttribute('color',new THREE.BufferAttribute(spC,3));
+const dotT=tex((g,w,h)=>{const q=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);q.addColorStop(0,'rgba(255,255,255,1)');q.addColorStop(.35,'rgba(255,255,255,.55)');q.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=q;g.fillRect(0,0,w,h)},64,64);
+const sps=new THREE.Points(spG,new THREE.PointsMaterial({size:.07,map:dotT,vertexColors:true,transparent:true,opacity:.8,depthWrite:false}));sps.frustumCulled=false;S.add(sps);
+const bulbs=[];{const pts=[];for(let i=0;i<=24;i++){const x=-4.2+i*.35,y=3.08-.2*Math.sin(PI*i/24),b=new THREE.Mesh(new THREE.SphereGeometry(.04,10,8),new THREE.MeshBasicMaterial({color:new THREE.Color().setHSL((.5+i*.012)%1,.8,.78)}));b.position.set(x,y-.03,1);S.add(b);bulbs.push(b);pts.push(new THREE.Vector3(x,y,1))}S.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:0xd9a0bb})))}
+const GL=new THREE.PointLight(0x6fc8ff,.25,1.6);GL.position.set(0,1.15,bz0);S.add(GL);
+const hl=new THREE.Mesh(new THREE.TorusGeometry(.17,.006,8,48),new THREE.MeshBasicMaterial({color:0x6fc8ff,transparent:true,opacity:.5}));hl.rotation.x=PI/2;hl.position.set(0,.918,bz0);S.add(hl);
+// ----- Hành động -----
+const ACTS={
+ cab(){cbO=cbO?0:1;snd(cbO?300:200,.2,'triangle');toast(cbO?'🚪 Đã mở tủ dụng cụ':'🚪 Đã đóng tủ');if(cbO)note('🚪 <b>Tủ dụng cụ</b>: lấy <b>đũa thủy tinh</b> (khuấy), <b>cốc sạch</b> (thay cốc), <b>bình nước cất</b> (thêm nước).')},
+ rod(){if(!cbO){ACTS.cab();return}hasRod=hasRod?0:1;rod0.visible=!hasRod;toast(hasRod?'🥄 Đã cầm đũa – bấm cốc hoặc F để khuấy':'Đã trả đũa về lọ')},
+ cup(){if(!cbO){ACTS.cab();return}clearAll();T=25;heat=ice=0;fire=0;sync();spl.visible=sco.visible=false;for(let i=0;i<40;i++)PD.e((rnd()-.5)*.2,bY+.3,bz0+(rnd()-.5)*.2,(rnd()-.5)*.6,.8+rnd(),(rnd()-.5)*.6,1.2,.016,new THREE.Color().setHSL(.85+rnd()*.1,.9,.75),.9,3,0,0);toast('🥛 Đã thay cốc sạch');note('🥛 Đã thay <b>cốc sạch</b> (hóa chất cũ cần đổ đúng thùng thải ♻).')},
+ flask(){if(!cbO){ACTS.cab();return}add('H2O',lvl);toast('💧 Thêm nước cất')},
+ stir(){if(!hasRod){note('🥄 Hãy mở tủ (E) và lấy <b>đũa thủy tinh</b> trước.');if(!cbO)ACTS.cab();return}if(V<1){note('Cốc trống: thêm chất rồi hãy khuấy.');return}stirT=3.2;toast('🥄 Khuấy đều…');note('🥄 <b>Khuấy đều</b>: chất rắn tan nhanh hơn, phản ứng xảy ra đồng đều hơn.')},
+ tap(){tapOn=tapOn?0:1;snd(tapOn?900:500,.15);toast(tapOn?'🚿 Mở vòi nước':'Đã tắt vòi')},
+ soap(){if(!tapOn&&!soap){note('🧼 Mở vòi làm ướt tay trước (T), rồi bơm xà phòng.');return}soap=1;scrub=0;rinseT=0;toast('🧼 Đã bơm xà phòng – bấm vào đôi tay 5 lần để chà');note('🧼 Chà đủ các mặt bàn tay: bấm vào <b>đôi tay</b> 5 lần rồi mở vòi tráng sạch.')},
+ hands(){if(!soap){note('Hãy bơm xà phòng trước.');return}if(scrub>=5)return;scrub++;rubT=.6;snd(400+scrub*60,.08,'square',.02);toast(`👐 Chà tay ${scrub}/5`);if(scrub==5)note('✅ Chà xong. Mở vòi để tráng sạch xà phòng.')}};
+$('#bt').onclick=ACTS.stir;$('#bc').onclick=ACTS.cab;
+addEventListener('keydown',e=>{if(e.target.tagName=='INPUT'||e.ctrlKey||e.metaKey)return;const f={e:ACTS.cab,f:ACTS.stir,t:ACTS.tap}[e.key.toLowerCase()];f&&f()});
+function v2(dt){v2c+=dt;const k=1-Math.exp(-dt*6);cbA+=((cbO?1:0)-cbA)*k;dpv.rotation.y=-cbA*1.9;
+ rdp.visible=!!hasRod;const sg=stirT>0;
+ if(sg){stirT-=dt;stA+=dt*9;for(const a of act)a.rate=a.xi0/(a.r.d||5)*2.4;if(A.H2O>.5)for(const i in SOL)if(mo[i]>1e-9)dsv[i]=Math.min(mo[i]*D[i].M,SOL[i]*V,dsv[i]+1.2*dt);pl.rotation.y+=dt*6;
+  for(let i=0;i<3;i++){const a=stA+i*2.1;PG.e(Math.cos(a)*.07,surf(),bz0+Math.sin(a)*.07,-Math.sin(a)*.3,.04,Math.cos(a)*.3,.5,.014,lm.color,.6)}}
+ const kk=1-Math.exp(-dt*10);rdp.rotation.x+=((sg?.2*Math.sin(stA):0)-rdp.rotation.x)*kk;rdp.rotation.z+=((sg?.2*Math.cos(stA):-.28)-rdp.rotation.z)*kk;
+ const on=act.length>0;GL.color.lerp(on?lm.color:PK,k);GL.intensity+=((on?1.6:.25)-GL.intensity)*k;hl.material.color.copy(GL.color);hl.material.opacity=.35+.25*Math.sin(v2c*2.4)+(on?.25:0);hl.scale.setScalar(1+.05*Math.sin(v2c*3)+(on?.12:0));
+ const pa=spG.attributes.position;for(let i=0;i<SPN;i++){let y=spP[i*3+1]+dt*(.05+(i%7)*.01);if(y>3.1)y=.05;spP[i*3+1]=y;spP[i*3]+=Math.sin(v2c*.6+i)*dt*.04}pa.needsUpdate=true;sps.material.opacity=.7+.2*Math.sin(v2c*2);
+ bulbs.forEach((b,i)=>b.scale.setScalar(1+.3*Math.sin(v2c*3+i)));
+ strm.visible=!!tapOn;hands.visible=!!(tapOn||soap);
+ if(tapOn){for(let i=0;i<4;i++)PD.e(-4.05+(rnd()-.5)*.02,1.2,.65+(rnd()-.5)*.02,0,-.2,0,.4,.012,WTR,.8,9.8,0,0);for(let i=0;i<2;i++)PD.e(-4.05+(rnd()-.5)*.1,.92,.65+(rnd()-.5)*.1,(rnd()-.5)*.5,.4+rnd()*.5,(rnd()-.5)*.5,.4,.01,WTR,.8,9.8,0,0)}
+ if(rubT>0){rubT-=dt;hands.position.z=.65+Math.sin(v2c*30)*.05;if(soap)for(let i=0;i<3;i++)PG.e(-4.05+(rnd()-.5)*.14,1.03+rnd()*.05,.65+(rnd()-.5)*.1,0,.06,0,1.1,.03,W,.8,0,0,1)}else hands.position.z=.65;
+ if(soap&&rnd()<.15)PG.e(-4.05+(rnd()-.5)*.14,1.03,.65+(rnd()-.5)*.1,0,.05,0,1.1,.03,W,.8,0,0,1);
+ if(tapOn&&soap&&scrub>=5){rinseT+=dt;if(rinseT>2){soap=0;scrub=0;rinseT=0;safe=Math.min(100,safe+5);toast('✨ Rửa tay sạch! +5 điểm an toàn');note('✨ <b>Rửa tay đúng cách</b> (làm ướt → xà phòng → chà → tráng): giảm nguy cơ nhiễm hóa chất. +5 điểm an toàn (tối đa 100).')}}}
+// ===== VÒNG LẶP =====
+lst();rst();if(innerWidth<700)$('#bank').hidden=true;let tp=0;
+R.setAnimationLoop(t=>{const dt=Math.min(.05,(t-tp)/1000)||0;tp=t;clk+=dt;try{mv(dt);step(dt);v2(dt)}catch(e){errMsg(e)}cam(dt);
+ FL.intensity=(fire>0?1.2+rnd()*.8:0)+fh*10;fh=Math.max(0,fh-dt*3);shake=Math.max(0,shake-dt*1.2);
+ if(ring.visible){ring.scale.addScalar(dt*5);ring.material.opacity-=dt*1.4;if(ring.material.opacity<=0)ring.visible=false}
+ const k=R.xr.isPresenting?1400:R.domElement.height*1.95;try{PG.up(dt,k);PD.up(dt,k);PF.up(dt,k);if(!$('#mol').hidden)drawMol(clk)}catch(e){errMsg(e)}R.render(S,C)});
+</script></body></html>
